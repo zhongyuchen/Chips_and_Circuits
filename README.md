@@ -10,7 +10,6 @@
  draw a graph to get upper/lower bound of cost and average cost
  - visualization of a solution
  - function to get the shortest path
- 
  - states base (amount of solutions) 
  (estimate upper-bound, lower-bound)
  
