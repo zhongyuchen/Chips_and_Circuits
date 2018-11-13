@@ -108,6 +108,10 @@ def theoretical_upper_bound(size):
            size[0] * size[1] * (size[2] - 1)
 
 
+def upper_bound_0(gates, nets, size):
+    return len(nets) * 2 + size[0] * size[1] * size[2] - len(gates)
+
+
 if __name__ == "__main__":
     print(theoretical_lower_bound(gates_1, netlist_1))
     print(theoretical_lower_bound(gates_1, netlist_2))
@@ -118,3 +122,10 @@ if __name__ == "__main__":
 
     print(theoretical_upper_bound(SIZE_1))
     print(theoretical_upper_bound(SIZE_2))
+
+    print(upper_bound_0(gates_1, netlist_1, SIZE_1))
+    print(upper_bound_0(gates_1, netlist_2, SIZE_1))
+    print(upper_bound_0(gates_1, netlist_3, SIZE_1))
+    print(upper_bound_0(gates_2, netlist_4, SIZE_2))
+    print(upper_bound_0(gates_2, netlist_5, SIZE_2))
+    print(upper_bound_0(gates_2, netlist_6, SIZE_2))
