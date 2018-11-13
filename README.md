@@ -3,3 +3,4 @@
 /map:
     Two prints stored in coordinate.
     Left lower corner is defined as (0, 0)
+    
