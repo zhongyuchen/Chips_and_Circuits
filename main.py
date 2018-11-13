@@ -25,7 +25,7 @@ gates_2 = [(1, 1), (1, 6), (1, 10), (1, 15), (2, 3),
 
 
 # data structure
-class Chip:
+class chip:
     line_cnt = 0
     grid = []
     gate_list = []
@@ -44,4 +44,4 @@ class Chip:
 
 if __name__ == "__main__":
     # chip
-    chip = Chip(SIZE_1, gates_1)
+    chip = chip(SIZE_1, gates_1)
