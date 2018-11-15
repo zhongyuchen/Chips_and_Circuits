@@ -1,5 +1,0 @@
-# grid size: [layers, rows, cols]
-# print 1
-SIZE_1 = [8, 13 ,18]
-# print 2
-SIZE_2 = [8, 17, 18]
