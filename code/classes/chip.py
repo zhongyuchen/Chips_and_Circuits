@@ -1,9 +1,12 @@
 import numpy as np
-import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 
+import sys
+sys.path.append('../')
+from algorithms.readjson import readjson
 
+import plotly
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
 
@@ -28,27 +31,33 @@ class chip:
         self.gate = gatelist
 
     def plot(self):
-        x = y = []
-        for gate in self.gate:
-            x.append(gate[0])
-            y.append(gate[1])
-        z = [0] * len(self.gate)
-        gates = go.Scatter3d(x=x, y=y, z=z,
-            marker=dict(size=8, color='#ffffff')
-        )
+        data = []
+        # gates
+        i = 1
+        for g in self.gate:
+            gate = go.Scatter3d(
+                x=[g[0]],
+                y=[g[1]],
+                z=[0],
+                marker=dict(size=8, color='#000000'),
+                name='Gate ' + str(i)
+            )
+            i += 1
+            data.append(gate)
 
-        wires = []
-
-        trace = go.Scatter3d(
+        """
+        # wires
+        wire = go.Scatter3d(
             x=range(0, len(self.grid[0][0])),
             y=range(0, len(self.grid[0])),
             z=range(0, len(self.grid)),
-            marker=dict(size=4, color=z, colorscale='Viridis'),
-            line=dict(color='#1f77b4', width=1)
+            marker=MARKER,
+            line=LINE,
+            name='wire1'
         )
+        """
 
-        data = [gates, wires]
-
+        # layout
         layout = dict(
             width=800,
             height=700,
@@ -59,19 +68,22 @@ class chip:
                     gridcolor='rgb(255, 255, 255)',
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
-                    backgroundcolor='rgb(230, 230,230)'
+                    backgroundcolor='rgb(230, 230,230)',
+                    range=(0, len(self.grid[0]))
                 ),
                 yaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
-                    backgroundcolor='rgb(230, 230,230)'
+                    backgroundcolor='rgb(230, 230,230)',
+                    range=(0, len(self.grid[0][0]))
                 ),
                 zaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
-                    backgroundcolor='rgb(230, 230,230)'
+                    backgroundcolor='rgb(230, 230,230)',
+                    range=(0, len(self.grid))
                 ),
                 camera=dict(
                     up=dict(
@@ -90,10 +102,14 @@ class chip:
             ),
         )
 
+        # figure
         fig = go.Figure(data=data, layout=layout)
-
-        py.iplot(fig, filename='test-3d', height=700, validate=False)
+        # plot figure
+        py.plot(fig, filename='test-3d', height=700, validate=False)
 
 
 if __name__ == "__main__":
-    chip = chip()
+    size1 = readjson("gridsizes.json", 1)
+    gate1 = readjson("gatelists.json", 1)
+    chip = chip(size1, gate1)
+    chip.plot()
