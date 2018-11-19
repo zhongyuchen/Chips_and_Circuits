@@ -5,7 +5,7 @@ import plotly.graph_objs as go
 import random
 
 import sys
-sys.path.append('../')
+sys.path.append("..")
 from algorithms.readjson import readjson
 
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
@@ -17,24 +17,27 @@ LINE = dict(size=3)
 
 class chip:
     # data structure
-    cnt_wire = 0
+    # cnt_wire = 0
     grid = []
     gate = []
+    net = []
     wire = []
     used_wired = []
     size = []
 
-    def __init__(self, size, gatelist):
+    def __init__(self, size, gatelist, netlist):
         # line number
-        self.cnt_wire = 0
+        # self.cnt_wire = 0
         self.wire = []
         # 3D grid -> -1: gate, 0: available, > 0: line number
+
+        self.net = netlist
 
         self.grid = np.zeros([size[0], size[1], size[2]])
         self.size = size
         # size[0] shows level, size[1] shows row, size[2] shows column
 
-        used_wired = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.used_wired = [[[-1 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
 
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
@@ -118,7 +121,10 @@ class chip:
         # plot figure
         py.plot(fig, filename='test-3d', height=700, validate=False)
 
-    def addline(self, st, en):
+    def addline(self, gate_num):
+
+        st = self.net[gate_num][0]
+        en = self.net[gate_num][1]
         # add a line
 
         fx = [-1, 0, 0, 1]
@@ -139,18 +145,20 @@ class chip:
 
         for i in range(len(self.gate)):
             visit[0][self.gate[i][0]][self.gate[i][1]] = 1
-            self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = 0
+            self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = -1
         visit[0][self.gate[en][0]][self.gate[en][1]] = 0
 
         while left < right:
             u = queue[left]
             if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
                 current_cost = 0
-                self.cnt_wire = self.cnt_wire + 1
-                self.used_wired[u[0]][u[1]][u[2]] = self.cnt_wire
+                # self.cnt_wire = self.cnt_wire + 1
+                # self.used_wired[u[0]][u[1]][u[2]] = self.cnt_wire
+                self.used_wired[u[0]][u[1]][u[2]] = gate_num
                 tmp = u[3]
                 while tmp != -1:
-                    self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = self.cnt_wire
+                    # self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = self.cnt_wire
+                    self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = gate_num
                     current_cost = current_cost + 1
                     tmp = queue[tmp][3]
 
@@ -163,21 +171,21 @@ class chip:
                 if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                     continue
 
-                if visit[u[0]][tx][ty] == 0 and self.used_wired[u[0]][tx][ty] == 0:
+                if visit[u[0]][tx][ty] == 0 and self.used_wired[u[0]][tx][ty] == -1:
                     queue.append([u[0], tx, ty, left])
                     visit[u[0]][tx][ty] = 1
                     right = right + 1
 
             # down level
             if u[0] > 0:
-                if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == 0:
+                if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == -1:
                     queue.append([u[0] - 1, u[1], u[2], left])
                     visit[u[0] - 1][u[1]][u[2]] = 1
                     right = right + 1
 
             # up level
             if u[0] < 6:
-                if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == 0:
+                if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
                     queue.append([u[0] + 1, u[1], u[2], left])
                     visit[u[0] + 1][u[1]][u[2]] = 1
                     right = right + 1
@@ -192,37 +200,108 @@ class chip:
             for j in range(self.size[1]):
                 for k in range(self.size[2]):
                     if self.used_wired[i][j][k] == lab_number:
-                        self.used_wired[i][j][k] = 0
-        self.wire.remove(lab_number)
+                        self.used_wired[i][j][k] = -1
+        #self.wire.remove(lab_number)
 
+    def del_and_add(self, delline_num, addline_num):
+        # find a solution, return 0
+        # else return 1
+        self.delline(delline_num)
+        cost1 = self.addline(addline_num)
+        cost2 = self.addline(delline_num)
+        if cost1 == -1 or cost2 == -1:
+            # cannot find a replaced solution
+
+            # back to last status
+            if cost1 != -1:
+                self.delline(addline_num)
+            if cost2 != -1:
+                self.delline(delline_num)
+            self.addline(delline_num)
+
+            return 1
+        else:
+            return 0
 
     def find_solution(self):
 
         fx = [-1, 0, 0, 1]
         fy = [0, 1, -1, 0]
 
-        random.shuffle(self.gate)
+        random.shuffle(self.net)
 
         ans = 0
-        for pair_gate in self.gate:
-            cost = self.addline(self, pair_gate[0], pair_gate[1])
+        cnt = 0
+        for pair_gate in self.net:
+            cost = self.addline(cnt)
+            flag_conflict = 0
+            # if there is a solution, flag_conflict = 0
+            # else flag_conflict = 1
+
             if cost == -1:
+
+                flag_conflict = 1
+                # for pair_gate[1]
+                # four points in level 0
                 for i in range(4):
-                    tx = pair_gate[0] + fx[i]
-                    ty = pair_gate[0] + fy[i]
+                    if flag_conflict == 0:
+                        break
+                    tx = self.gate[pair_gate[0]][0] + fx[i]
+                    ty = self.gate[pair_gate[0]][1] + fy[i]
 
                     if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                         continue
 
-                    self.delline(self, self.used_wired[0][tx][ty])
-                    self.addline(self, pair_gate[0], pair_gate[1])
+                    gate_num = self.used_wired[0][tx][ty]
 
-                    '''TODO'''
+                    flag_conflict = self.del_and_add(gate_num, cnt)
 
+                if flag_conflict == 0:
+                    break
+
+                # the point in level 1
+                gate_num = self.used_wired[1][self.gate[pair_gate[0]][0]][self.gate[pair_gate[0]][1]]
+                flag_conflict = self.del_and_add(gate_num, cnt)
+
+                if flag_conflict == 0:
+                    break
+
+                # for pair_gate[1]
+                for i in range(4):
+                    if flag_conflict == 0:
+                        break
+                    tx = self.gate[pair_gate[1]][0] + fx[i]
+                    ty = self.gate[pair_gate[1]][1] + fy[i]
+
+                    if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
+                        continue
+
+                    gate_num = self.used_wired[0][tx][ty]
+
+                    flag_conflict = self.del_and_add(gate_num, cnt)
+
+                if flag_conflict == 0:
+                    break
+
+                # the point in level 1
+                gate_num = self.used_wired[1][self.gate[pair_gate[1]][0]][self.gate[pair_gate[1]][1]]
+                flag_conflict = self.del_and_add(gate_num, cnt)
+
+                if flag_conflict == 0:
+                    break
+
+            if flag_conflict == 0:
+                cnt = cnt + 1
+
+        print(cnt)
+        if cnt == len(self.net):
+            print("find a solution!")
 
 
 if __name__ == "__main__":
     size1 = readjson("gridsizes.json", 1)
     gate1 = readjson("gatelists.json", 1)
-    chip = chip(size1, gate1)
-    chip.plot()
+    netlist1 = readjson("netlists.json", 1)
+    chip = chip(size1, gate1, netlist1)
+    chip.find_solution()
+    # chip.plot()
