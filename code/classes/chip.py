@@ -152,13 +152,10 @@ class chip:
             u = queue[left]
             if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
                 current_cost = 0
-                # self.cnt_wire = self.cnt_wire + 1
-                # self.used_wired[u[0]][u[1]][u[2]] = self.cnt_wire
-                self.used_wired[u[0]][u[1]][u[2]] = gate_num
                 tmp = u[3]
                 while tmp != -1:
-                    # self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = self.cnt_wire
-                    self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = gate_num
+                    if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
+                        self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = gate_num
                     current_cost = current_cost + 1
                     tmp = queue[tmp][3]
 
@@ -193,6 +190,24 @@ class chip:
             left = left + 1
         return -1
 
+    def output_map(self, f):
+        for i in range(2):
+            print("nn", file=f, end=" ")
+            for k in range(self.size[2]):
+                print("%02d" % k, file=f, end=" ")
+            print(file=f)
+
+            for j in range(self.size[1]):
+                print("%02d" % j, file=f, end=" ")
+                for k in range(self.size[2]):
+                    if self.used_wired[i][j][k] >= 0:
+                        print("%02d" % self.used_wired[i][j][k], file=f, end=" ")
+                    else:
+                        print(self.used_wired[i][j][k], file=f, end=" ")
+                print(file=f)
+
+            print(file=f)
+
     def delline(self, lab_number):
         # delete a line
 
@@ -201,11 +216,15 @@ class chip:
                 for k in range(self.size[2]):
                     if self.used_wired[i][j][k] == lab_number:
                         self.used_wired[i][j][k] = -1
-        #self.wire.remove(lab_number)
 
     def del_and_add(self, delline_num, addline_num):
         # find a solution, return 0
         # else return 1
+
+        if delline_num == -1:
+            # do not need to delete anything
+            return 1
+
         self.delline(delline_num)
         cost1 = self.addline(addline_num)
         cost2 = self.addline(delline_num)
@@ -219,6 +238,7 @@ class chip:
                 self.delline(delline_num)
             self.addline(delline_num)
 
+            self.output_map(open('tmp.txt', 'w'))
             return 1
         else:
             return 0
@@ -241,7 +261,10 @@ class chip:
             if cost == -1:
 
                 flag_conflict = 1
-                # for pair_gate[1]
+
+                self.output_map(open('data.txt', 'w'))
+
+                # for pair_gate[0]
                 # four points in level 0
                 for i in range(4):
                     if flag_conflict == 0:
@@ -256,46 +279,37 @@ class chip:
 
                     flag_conflict = self.del_and_add(gate_num, cnt)
 
-                if flag_conflict == 0:
-                    break
-
-                # the point in level 1
-                gate_num = self.used_wired[1][self.gate[pair_gate[0]][0]][self.gate[pair_gate[0]][1]]
-                flag_conflict = self.del_and_add(gate_num, cnt)
-
-                if flag_conflict == 0:
-                    break
-
-                # for pair_gate[1]
-                for i in range(4):
-                    if flag_conflict == 0:
-                        break
-                    tx = self.gate[pair_gate[1]][0] + fx[i]
-                    ty = self.gate[pair_gate[1]][1] + fy[i]
-
-                    if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
-                        continue
-
-                    gate_num = self.used_wired[0][tx][ty]
-
+                if flag_conflict == 1:
+                    # the point in level 1
+                    gate_num = self.used_wired[1][self.gate[pair_gate[0]][0]][self.gate[pair_gate[0]][1]]
                     flag_conflict = self.del_and_add(gate_num, cnt)
 
-                if flag_conflict == 0:
-                    break
+                # for pair_gate[1]
+                if flag_conflict == 1:
+                    for i in range(4):
+                        if flag_conflict == 0:
+                            break
+                        tx = self.gate[pair_gate[1]][0] + fx[i]
+                        ty = self.gate[pair_gate[1]][1] + fy[i]
 
-                # the point in level 1
-                gate_num = self.used_wired[1][self.gate[pair_gate[1]][0]][self.gate[pair_gate[1]][1]]
-                flag_conflict = self.del_and_add(gate_num, cnt)
+                        if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
+                            continue
 
-                if flag_conflict == 0:
-                    break
+                        gate_num = self.used_wired[0][tx][ty]
+
+                        flag_conflict = self.del_and_add(gate_num, cnt)
+
+                if flag_conflict == 1:
+                    # the point in level 1
+                    gate_num = self.used_wired[1][self.gate[pair_gate[1]][0]][self.gate[pair_gate[1]][1]]
+                    flag_conflict = self.del_and_add(gate_num, cnt)
 
             if flag_conflict == 0:
                 cnt = cnt + 1
+            # else:
+            #     print(pair_gate)
 
-        print(cnt)
-        if cnt == len(self.net):
-            print("find a solution!")
+        return cnt
 
 
 if __name__ == "__main__":
@@ -303,5 +317,9 @@ if __name__ == "__main__":
     gate1 = readjson("gatelists.json", 1)
     netlist1 = readjson("netlists.json", 1)
     chip = chip(size1, gate1, netlist1)
-    chip.find_solution()
+
+    ans = 0
+    while ans != 30:
+        ans = chip.find_solution()
+        print(ans)
     # chip.plot()
