@@ -13,6 +13,7 @@ plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1b
 
 MARKER = dict(size=3)
 LINE = dict(size=3)
+four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 
 class chip:
@@ -127,9 +128,6 @@ class chip:
         en = self.net[gate_num][1]
         # add a line
 
-        fx = [-1, 0, 0, 1]
-        fy = [0, 1, -1, 0]
-
         queue = []
         # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
         left = 0
@@ -163,8 +161,8 @@ class chip:
 
             # 4 directions in same level
             for i in range(4):
-                tx = u[1] + fx[i]
-                ty = u[2] + fy[i]
+                tx = u[1] + four_direction[i][0]
+                ty = u[2] + four_direction[i][1]
                 if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                     continue
 
@@ -237,16 +235,69 @@ class chip:
             if cost2 != -1:
                 self.delline(delline_num)
             self.addline(delline_num)
-
-            self.output_map(open('tmp.txt', 'w'))
             return 1
         else:
             return 0
 
-    def find_solution(self):
+    def output_line(self):
+        # output each line to be visualized
 
-        fx = [-1, 0, 0, 1]
-        fy = [0, 1, -1, 0]
+        line_list = []
+        line_x = []
+        line_y = []
+        line_z = []
+
+        visit = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+
+        self.output_map(open("data.txt", "w"))
+
+        for i in range(len(self.net)):
+            u = [0, self.gate[self.net[i][0]][0], self.gate[self.net[i][0]][1]]
+            v = [0, self.gate[self.net[i][1]][0], self.gate[self.net[i][1]][1]]
+            while u != v:
+                line_z.append(u[0])
+                line_x.append(u[1])
+                line_y.append(u[2])
+
+                u_is_changed = 0
+                for t in range(4):
+                    tx = u[1] + four_direction[t][0]
+                    ty = u[2] + four_direction[t][1]
+                    if self.used_wired[u[0]][tx][ty] == i and \
+                            (visit[u[0]][tx][ty] == 0 or self.used_wired[u[0]][tx][ty] == -1):
+                        u = [u[0], tx, ty]
+                        visit[u[0]][tx][ty] = 1
+                        u_is_changed = 1
+                        break
+
+                if u_is_changed == 0:
+                    if u[0] > 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == i and \
+                            (visit[u[0] - 1][u[1]][u[2]] == 0 or self.used_wired[u[0] - 1][u[1]][u[2]] == -1):
+                        u = [u[0] - 1, u[1], u[2]]
+                        visit[u[0] - 1][u[1]][u[2]] = 1
+                        u_is_changed = 1
+
+                if u_is_changed == 0:
+                    if u[0] < 6 and self.used_wired[u[0] + 1][u[1]][u[2]] == i and \
+                            (visit[u[0] + 1][u[1]][u[2]] == 0 or self.used_wired[u[0] + 1][u[1]][u[2]] == -1):
+                        u = [u[0] + 1, u[1], u[2]]
+                        visit[u[0] + 1][u[1]][u[2]] = 1
+                        u_is_changed = 1
+
+                if u_is_changed == 0:
+                    print("error")
+                    return []
+
+            line_z.append(v[0])
+            line_x.append(v[1])
+            line_y.append(v[2])
+
+            line_list.append([line_x, line_y, line_z])
+            print([line_x, line_y, line_z])
+
+        return line_list
+
+    def find_solution(self):
 
         random.shuffle(self.net)
 
@@ -262,15 +313,13 @@ class chip:
 
                 flag_conflict = 1
 
-                self.output_map(open('data.txt', 'w'))
-
                 # for pair_gate[0]
                 # four points in level 0
                 for i in range(4):
                     if flag_conflict == 0:
                         break
-                    tx = self.gate[pair_gate[0]][0] + fx[i]
-                    ty = self.gate[pair_gate[0]][1] + fy[i]
+                    tx = self.gate[pair_gate[0]][0] + four_direction[i][0]
+                    ty = self.gate[pair_gate[0]][1] + four_direction[i][1]
 
                     if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                         continue
@@ -289,8 +338,8 @@ class chip:
                     for i in range(4):
                         if flag_conflict == 0:
                             break
-                        tx = self.gate[pair_gate[1]][0] + fx[i]
-                        ty = self.gate[pair_gate[1]][1] + fy[i]
+                        tx = self.gate[pair_gate[1]][0] + four_direction[i][0]
+                        ty = self.gate[pair_gate[1]][1] + four_direction[i][1]
 
                         if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                             continue
@@ -306,8 +355,6 @@ class chip:
 
             if flag_conflict == 0:
                 cnt = cnt + 1
-            # else:
-            #     print(pair_gate)
 
         return cnt
 
@@ -322,4 +369,6 @@ if __name__ == "__main__":
     while ans != 30:
         ans = chip.find_solution()
         print(ans)
+    print(chip.output_line())
+
     # chip.plot()
