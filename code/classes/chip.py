@@ -76,7 +76,7 @@ class chip:
         )
         """
 
-        # layout
+        # layout)
         layout = dict(
             width=800,
             height=700,
