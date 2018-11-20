@@ -26,6 +26,8 @@ class chip:
     used_wired = []
     size = []
 
+    map_line = []
+
     def __init__(self, size, gatelist, netlist):
         # line number
         # self.cnt_wire = 0
@@ -39,6 +41,8 @@ class chip:
         # size[0] shows level, size[1] shows row, size[2] shows column
 
         self.used_wired = [[[-1 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+
+        self.map_line = [[] for i in range(len(self.net))]
 
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
@@ -122,11 +126,104 @@ class chip:
         # plot figure
         py.plot(fig, filename='test-3d', height=700, validate=False)
 
-    def addline(self, gate_num):
+    def output_map(self, f):
+        for i in range(2):
+            print("nn", file=f, end=" ")
+            for k in range(self.size[2]):
+                print("%02d" % k, file=f, end=" ")
+            print(file=f)
 
-        st = self.net[gate_num][0]
-        en = self.net[gate_num][1]
+            for j in range(self.size[1]):
+                print("%02d" % j, file=f, end=" ")
+                for k in range(self.size[2]):
+                    if self.used_wired[i][j][k] >= 0:
+                        print("%02d" % self.used_wired[i][j][k], file=f, end=" ")
+                    else:
+                        print(self.used_wired[i][j][k], file=f, end=" ")
+                print(file=f)
+
+            print(file=f)
+
+    def output_line(self):
+        line_list = []
+
+        for i in range(len(self.net)):
+            line_x = []
+            line_y = []
+            line_z = []
+
+            for cor in self.map_line[i]:
+                line_z.append(cor[0])
+                line_x.append(cor[1])
+                line_y.append(cor[2])
+
+            line_list.append([line_x, line_y, line_z])
+
+        return line_list
+
+    # def output_line(self):
+    #     # output each line to be visualized
+    #
+    #     line_list = []
+    #     line_x = []
+    #     line_y = []
+    #     line_z = []
+    #
+    #     visit = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+    #
+    #     self.output_map(open("data.txt", "w"))
+    #
+    #     for i in range(len(self.net)):
+    #         u = [0, self.gate[self.net[i][0]][0], self.gate[self.net[i][0]][1]]
+    #         v = [0, self.gate[self.net[i][1]][0], self.gate[self.net[i][1]][1]]
+    #         while u != v:
+    #             line_z.append(u[0])
+    #             line_x.append(u[1])
+    #             line_y.append(u[2])
+    #
+    #             u_is_changed = 0
+    #             for t in range(4):
+    #                 tx = u[1] + four_direction[t][0]
+    #                 ty = u[2] + four_direction[t][1]
+    #                 if self.used_wired[u[0]][tx][ty] == i and \
+    #                         (visit[u[0]][tx][ty] == 0 or self.used_wired[u[0]][tx][ty] == -1):
+    #                     u = [u[0], tx, ty]
+    #                     visit[u[0]][tx][ty] = 1
+    #                     u_is_changed = 1
+    #                     break
+    #
+    #             if u_is_changed == 0:
+    #                 if u[0] > 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == i and \
+    #                         (visit[u[0] - 1][u[1]][u[2]] == 0 or self.used_wired[u[0] - 1][u[1]][u[2]] == -1):
+    #                     u = [u[0] - 1, u[1], u[2]]
+    #                     visit[u[0] - 1][u[1]][u[2]] = 1
+    #                     u_is_changed = 1
+    #
+    #             if u_is_changed == 0:
+    #                 if u[0] < 6 and self.used_wired[u[0] + 1][u[1]][u[2]] == i and \
+    #                         (visit[u[0] + 1][u[1]][u[2]] == 0 or self.used_wired[u[0] + 1][u[1]][u[2]] == -1):
+    #                     u = [u[0] + 1, u[1], u[2]]
+    #                     visit[u[0] + 1][u[1]][u[2]] = 1
+    #                     u_is_changed = 1
+    #
+    #             if u_is_changed == 0:
+    #                 print("error")
+    #                 return []
+    #
+    #         line_z.append(v[0])
+    #         line_x.append(v[1])
+    #         line_y.append(v[2])
+    #
+    #         line_list.append([line_x, line_y, line_z])
+    #         print([line_x, line_y, line_z])
+    #
+    #     return line_list
+
+    def addline(self, net_num):
         # add a line
+
+        st = self.net[net_num][0]
+        en = self.net[net_num][1]
 
         queue = []
         # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
@@ -151,9 +248,11 @@ class chip:
             if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
                 current_cost = 0
                 tmp = u[3]
+                self.map_line[net_num].append([u[0], u[1], u[2]])
                 while tmp != -1:
                     if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
-                        self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = gate_num
+                        self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = net_num
+                        self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
                     current_cost = current_cost + 1
                     tmp = queue[tmp][3]
 
@@ -188,24 +287,6 @@ class chip:
             left = left + 1
         return -1
 
-    def output_map(self, f):
-        for i in range(2):
-            print("nn", file=f, end=" ")
-            for k in range(self.size[2]):
-                print("%02d" % k, file=f, end=" ")
-            print(file=f)
-
-            for j in range(self.size[1]):
-                print("%02d" % j, file=f, end=" ")
-                for k in range(self.size[2]):
-                    if self.used_wired[i][j][k] >= 0:
-                        print("%02d" % self.used_wired[i][j][k], file=f, end=" ")
-                    else:
-                        print(self.used_wired[i][j][k], file=f, end=" ")
-                print(file=f)
-
-            print(file=f)
-
     def delline(self, lab_number):
         # delete a line
 
@@ -214,6 +295,8 @@ class chip:
                 for k in range(self.size[2]):
                     if self.used_wired[i][j][k] == lab_number:
                         self.used_wired[i][j][k] = -1
+
+        self.map_line[lab_number] = []
 
     def del_and_add(self, delline_num, addline_num):
         # find a solution, return 0
@@ -238,64 +321,6 @@ class chip:
             return 1
         else:
             return 0
-
-    def output_line(self):
-        # output each line to be visualized
-
-        line_list = []
-        line_x = []
-        line_y = []
-        line_z = []
-
-        visit = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
-
-        self.output_map(open("data.txt", "w"))
-
-        for i in range(len(self.net)):
-            u = [0, self.gate[self.net[i][0]][0], self.gate[self.net[i][0]][1]]
-            v = [0, self.gate[self.net[i][1]][0], self.gate[self.net[i][1]][1]]
-            while u != v:
-                line_z.append(u[0])
-                line_x.append(u[1])
-                line_y.append(u[2])
-
-                u_is_changed = 0
-                for t in range(4):
-                    tx = u[1] + four_direction[t][0]
-                    ty = u[2] + four_direction[t][1]
-                    if self.used_wired[u[0]][tx][ty] == i and \
-                            (visit[u[0]][tx][ty] == 0 or self.used_wired[u[0]][tx][ty] == -1):
-                        u = [u[0], tx, ty]
-                        visit[u[0]][tx][ty] = 1
-                        u_is_changed = 1
-                        break
-
-                if u_is_changed == 0:
-                    if u[0] > 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == i and \
-                            (visit[u[0] - 1][u[1]][u[2]] == 0 or self.used_wired[u[0] - 1][u[1]][u[2]] == -1):
-                        u = [u[0] - 1, u[1], u[2]]
-                        visit[u[0] - 1][u[1]][u[2]] = 1
-                        u_is_changed = 1
-
-                if u_is_changed == 0:
-                    if u[0] < 6 and self.used_wired[u[0] + 1][u[1]][u[2]] == i and \
-                            (visit[u[0] + 1][u[1]][u[2]] == 0 or self.used_wired[u[0] + 1][u[1]][u[2]] == -1):
-                        u = [u[0] + 1, u[1], u[2]]
-                        visit[u[0] + 1][u[1]][u[2]] = 1
-                        u_is_changed = 1
-
-                if u_is_changed == 0:
-                    print("error")
-                    return []
-
-            line_z.append(v[0])
-            line_x.append(v[1])
-            line_y.append(v[2])
-
-            line_list.append([line_x, line_y, line_z])
-            print([line_x, line_y, line_z])
-
-        return line_list
 
     def find_solution(self):
 
@@ -324,14 +349,14 @@ class chip:
                     if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                         continue
 
-                    gate_num = self.used_wired[0][tx][ty]
+                    net_num = self.used_wired[0][tx][ty]
 
-                    flag_conflict = self.del_and_add(gate_num, cnt)
+                    flag_conflict = self.del_and_add(net_num, cnt)
 
                 if flag_conflict == 1:
                     # the point in level 1
-                    gate_num = self.used_wired[1][self.gate[pair_gate[0]][0]][self.gate[pair_gate[0]][1]]
-                    flag_conflict = self.del_and_add(gate_num, cnt)
+                    net_num = self.used_wired[1][self.gate[pair_gate[0]][0]][self.gate[pair_gate[0]][1]]
+                    flag_conflict = self.del_and_add(net_num, cnt)
 
                 # for pair_gate[1]
                 if flag_conflict == 1:
@@ -344,14 +369,14 @@ class chip:
                         if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                             continue
 
-                        gate_num = self.used_wired[0][tx][ty]
+                        net_num = self.used_wired[0][tx][ty]
 
-                        flag_conflict = self.del_and_add(gate_num, cnt)
+                        flag_conflict = self.del_and_add(net_num, cnt)
 
                 if flag_conflict == 1:
                     # the point in level 1
-                    gate_num = self.used_wired[1][self.gate[pair_gate[1]][0]][self.gate[pair_gate[1]][1]]
-                    flag_conflict = self.del_and_add(gate_num, cnt)
+                    net_num = self.used_wired[1][self.gate[pair_gate[1]][0]][self.gate[pair_gate[1]][1]]
+                    flag_conflict = self.del_and_add(net_num, cnt)
 
             if flag_conflict == 0:
                 cnt = cnt + 1
