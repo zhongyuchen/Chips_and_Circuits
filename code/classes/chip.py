@@ -30,7 +30,7 @@ class chip:
         # line number
         # self.cnt_wire = 0
         self.wire = []
-        # 3D grid -> -1: gate, 0: available, > 0: line number
+        # 3D grid -> -1: gate, 0: available, > 0: wire number
 
         self.net = netlist
 
@@ -84,21 +84,24 @@ class chip:
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, len(self.grid[0]))
+                    range=(0, self.size[1]),
+                    dtick=1
                 ),
                 yaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, len(self.grid[0][0]))
+                    range=(0, self.size[2]),
+                    dtick=1
                 ),
                 zaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, len(self.grid))
+                    range=(0, self.size[0]),
+                    dtick=1
                 ),
                 camera=dict(
                     up=dict(
@@ -120,7 +123,7 @@ class chip:
         # figure
         fig = go.Figure(data=data, layout=layout)
         # plot figure
-        py.plot(fig, filename='test-3d', height=700, validate=False)
+        py.plot(fig, filename='chip-3d', height=700, validate=False)
 
     def addline(self, gate_num):
 
@@ -365,10 +368,10 @@ if __name__ == "__main__":
     netlist1 = readjson("netlists.json", 1)
     chip = chip(size1, gate1, netlist1)
 
-    ans = 0
-    while ans != 30:
-        ans = chip.find_solution()
-        print(ans)
-    print(chip.output_line())
+    # ans = 0
+    # while ans != 30:
+    #     ans = chip.find_solution()
+    #     print(ans)
+    # print(chip.output_line())
 
-    # chip.plot()
+    chip.plot()
