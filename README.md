@@ -13,6 +13,10 @@
  
  - states base (amount of solutions) 
  (estimate upper-bound, lower-bound)!!!
- - bfs: get valid solutions
- - python visualization: plotly, bokeh (just a empty one first)
  
+ - wires are not allowed to pass by all the other gates
+ - what are the wires that should be taken out?
+ - visualize incomplete grid, find the problem, try to write heuristics to prevent it
+ - the cost of the solution
+ - hill climber to improve a solution: make a modification, save the better one
+ - take out the functions that find solutions
