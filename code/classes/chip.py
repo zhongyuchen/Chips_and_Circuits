@@ -347,18 +347,20 @@ class chip:
 
                 # for pair_gate[0]
                 # four points in level 0
-                for i in range(4):
-                    if flag_conflict == 0:
-                        break
-                    tx = self.gate[pair_gate[0]][0] + four_direction[i][0]
-                    ty = self.gate[pair_gate[0]][1] + four_direction[i][1]
 
-                    if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
-                        continue
+                if flag_conflict == 1:
+                    for i in range(4):
+                        if flag_conflict == 0:
+                            break
+                        tx = self.gate[pair_gate[0]][0] + four_direction[i][0]
+                        ty = self.gate[pair_gate[0]][1] + four_direction[i][1]
 
-                    net_num = self.used_wired[0][tx][ty]
+                        if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
+                            continue
 
-                    flag_conflict = self.del_and_add(net_num, cnt)
+                        net_num = self.used_wired[0][tx][ty]
+
+                        flag_conflict = self.del_and_add(net_num, cnt)
 
                 if flag_conflict == 1:
                     # the point in level 1
@@ -395,16 +397,17 @@ if __name__ == "__main__":
     size1 = readjson("gridsizes.json", 1)
     gate1 = readjson("gatelists.json", 1)
     netlist1 = readjson("netlists.json", 1)
-    chip = chip(size1, gate1, netlist1)
 
     ans = 0
     while ans != 30:
-        ans = chip.find_solution()
+        chip_test = chip(size1, gate1, netlist1)
+        ans = chip_test.find_solution()
         print(ans)
-    wirelist = chip.output_line()
-    i = 1
-    for wire in wirelist:
-        print(i)
-        print(wire)
-        i += 1
-    chip.plot()
+
+    # wirelist = chip_test.output_line()
+    # i = 1
+    # for wire in wirelist:
+    #     print(i)
+    #     print(wire)
+    #     i += 1
+    chip_test.plot()
