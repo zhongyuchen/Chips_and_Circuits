@@ -11,8 +11,6 @@ from algorithms.readjson import readjson
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
 
-MARKER = dict(size=3)
-LINE = dict(size=3)
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 
@@ -58,29 +56,34 @@ class chip:
                 x=[g[0]],
                 y=[g[1]],
                 z=[0],
+                mode="markers+text",
                 marker=dict(size=8, color='#000000'),
-                name='Gate ' + str(i)
+                text=[str(i)],
+                name='G' + str(i)
             )
             i += 1
             data.append(gate)
 
-        """
         # wires
-        wire = go.Scatter3d(
-            x=range(0, len(self.grid[0][0])),
-            y=range(0, len(self.grid[0])),
-            z=range(0, len(self.grid)),
-            marker=MARKER,
-            line=LINE,
-            name='wire1'
-        )
-        """
+        wires = self.output_line()
+        i = 1
+        for w in wires:
+            wire = go.Scatter3d(
+                x=w[0],
+                y=w[1],
+                z=w[2],
+                mode="markers+lines",
+                marker=dict(size=3),
+                name='W' + str(i)
+            )
+            i += 1
+            data.append(wire)
 
-        # layout)
+        # layout
         layout = dict(
-            width=800,
-            height=700,
-            autosize=False,
+            # width=800,
+            # height=700,
+            # autosize=False,
             title='chip',
             scene=dict(
                 xaxis=dict(
@@ -127,7 +130,7 @@ class chip:
         # figure
         fig = go.Figure(data=data, layout=layout)
         # plot figure
-        py.plot(fig, filename='chip-3d', height=700, validate=False)
+        py.plot(fig, filename='chip-3d', validate=False)
 
     def output_map(self, f):
         for i in range(2):
@@ -258,6 +261,7 @@ class chip:
                         self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
                     current_cost = current_cost + 1
                     tmp = queue[tmp][3]
+                self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])
 
                 return current_cost
 
@@ -393,10 +397,14 @@ if __name__ == "__main__":
     netlist1 = readjson("netlists.json", 1)
     chip = chip(size1, gate1, netlist1)
 
-    # ans = 0
-    # while ans != 30:
-    #     ans = chip.find_solution()
-    #     print(ans)
-    # print(chip.output_line())
-
+    ans = 0
+    while ans != 30:
+        ans = chip.find_solution()
+        print(ans)
+    wirelist = chip.output_line()
+    i = 1
+    for wire in wirelist:
+        print(i)
+        print(wire)
+        i += 1
     chip.plot()
