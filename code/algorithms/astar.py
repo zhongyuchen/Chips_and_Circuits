@@ -79,7 +79,8 @@ if __name__ == "__main__":
     while ans != 30:
         chip_test = chip(size1, gate1, netlist1)
         ans = astar(chip_test)
-        print(ans)
+        print(f"wires: {ans}", end=" ")
+        print(f"cost: {chip_test.cost()}")
 
     # wirelist = chip.output_line()
     # i = 1

@@ -81,7 +81,7 @@ class chip:
             # width=800,
             # height=700,
             # autosize=False,
-            title='chip',
+            title='chip (cost: ' + str(self.cost()) + ')',
             scene=dict(
                 xaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
@@ -270,3 +270,9 @@ class chip:
             return 1
         else:
             return 0
+
+    def cost(self):
+        sum = 0
+        for wire in self.map_line:
+            sum += len(wire) - 1
+        return sum
