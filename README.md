@@ -18,6 +18,7 @@
  - what are the wires that should be taken out?
  - visualize incomplete grid, find the problem, try to write heuristics to prevent it
  - hill climber to improve a solution: make a modification, save the better one
+ - remove unconnected gates!
  
 presentation on Friday
  - introdution: constrain
