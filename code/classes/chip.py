@@ -396,10 +396,10 @@ class chip:
 if __name__ == "__main__":
     size1 = readjson("gridsizes.json", 1)
     gate1 = readjson("gatelists.json", 1)
-    netlist1 = readjson("netlists.json", 1)
+    netlist1 = readjson("netlists.json", 2)
 
     ans = 0
-    while ans != 30:
+    while ans != len(netlist1):
         chip_test = chip(size1, gate1, netlist1)
         ans = chip_test.find_solution()
         print(ans)
