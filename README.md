@@ -19,4 +19,4 @@
  - visualize incomplete grid, find the problem, try to write heuristics to prevent it
  - the cost of the solution
  - hill climber to improve a solution: make a modification, save the better one
- - take out the functions that find solutions
+ 

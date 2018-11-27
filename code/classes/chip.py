@@ -2,11 +2,8 @@ import numpy as np
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-import random
-
 import sys
-sys.path.append("..")
-from algorithms.readjson import readjson
+
 
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
@@ -48,6 +45,7 @@ class chip:
         self.gate = gatelist
 
     def plot(self):
+        # visualization
         data = []
         # gates
         i = 1
@@ -84,7 +82,7 @@ class chip:
             # width=800,
             # height=700,
             # autosize=False,
-            title='chip',
+            title='chip (cost: ' + str(self.cost()) + ')',
             scene=dict(
                 xaxis=dict(
                     gridcolor='rgb(255, 255, 255)',
@@ -133,6 +131,7 @@ class chip:
         py.plot(fig, filename='chip-3d', validate=False)
 
     def output_map(self, f):
+        # for debug
         for i in range(2):
             print("nn", file=f, end=" ")
             for k in range(self.size[2]):
@@ -151,6 +150,8 @@ class chip:
             print(file=f)
 
     def output_line(self):
+        # get the ordered coordinates of all the wires
+        # for visualization
         line_list = []
 
         for i in range(len(self.net)):
@@ -166,64 +167,6 @@ class chip:
             line_list.append([line_x, line_y, line_z])
 
         return line_list
-
-    # def output_line(self):
-    #     # output each line to be visualized
-    #
-    #     line_list = []
-    #     line_x = []
-    #     line_y = []
-    #     line_z = []
-    #
-    #     visit = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
-    #
-    #     self.output_map(open("data.txt", "w"))
-    #
-    #     for i in range(len(self.net)):
-    #         u = [0, self.gate[self.net[i][0]][0], self.gate[self.net[i][0]][1]]
-    #         v = [0, self.gate[self.net[i][1]][0], self.gate[self.net[i][1]][1]]
-    #         while u != v:
-    #             line_z.append(u[0])
-    #             line_x.append(u[1])
-    #             line_y.append(u[2])
-    #
-    #             u_is_changed = 0
-    #             for t in range(4):
-    #                 tx = u[1] + four_direction[t][0]
-    #                 ty = u[2] + four_direction[t][1]
-    #                 if self.used_wired[u[0]][tx][ty] == i and \
-    #                         (visit[u[0]][tx][ty] == 0 or self.used_wired[u[0]][tx][ty] == -1):
-    #                     u = [u[0], tx, ty]
-    #                     visit[u[0]][tx][ty] = 1
-    #                     u_is_changed = 1
-    #                     break
-    #
-    #             if u_is_changed == 0:
-    #                 if u[0] > 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == i and \
-    #                         (visit[u[0] - 1][u[1]][u[2]] == 0 or self.used_wired[u[0] - 1][u[1]][u[2]] == -1):
-    #                     u = [u[0] - 1, u[1], u[2]]
-    #                     visit[u[0] - 1][u[1]][u[2]] = 1
-    #                     u_is_changed = 1
-    #
-    #             if u_is_changed == 0:
-    #                 if u[0] < 6 and self.used_wired[u[0] + 1][u[1]][u[2]] == i and \
-    #                         (visit[u[0] + 1][u[1]][u[2]] == 0 or self.used_wired[u[0] + 1][u[1]][u[2]] == -1):
-    #                     u = [u[0] + 1, u[1], u[2]]
-    #                     visit[u[0] + 1][u[1]][u[2]] = 1
-    #                     u_is_changed = 1
-    #
-    #             if u_is_changed == 0:
-    #                 print("error")
-    #                 return []
-    #
-    #         line_z.append(v[0])
-    #         line_x.append(v[1])
-    #         line_y.append(v[2])
-    #
-    #         line_list.append([line_x, line_y, line_z])
-    #         print([line_x, line_y, line_z])
-    #
-    #     return line_list
 
     def addline(self, net_num):
         # add a line
@@ -328,6 +271,12 @@ class chip:
             return 1
         else:
             return 0
+
+    def cost(self):
+        sum = 0
+        for wire in self.map_line:
+            sum += len(wire) - 1
+        return sum
 
     def find_solution(self):
 
