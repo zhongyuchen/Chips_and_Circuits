@@ -19,6 +19,7 @@
  - visualize incomplete grid, find the problem, try to write heuristics to prevent it
  - hill climber to improve a solution: make a modification, save the better one
  - remove unconnected gates!
+ - info showed in a graph???
  
 presentation on Friday
  - introdution: constrain
