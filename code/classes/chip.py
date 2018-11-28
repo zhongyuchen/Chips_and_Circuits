@@ -25,6 +25,7 @@ class chip:
     wire = []
     used_wired = []
     size = []
+    grid_value = []
 
     map_line = []
 
@@ -137,7 +138,7 @@ class chip:
 
     def calc_single_cost_impact(self, tx, ty, c):
         if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
-            continue
+            return 0
         if self.grid[0][tx][ty] == -1:
             return c
 
@@ -203,6 +204,9 @@ class chip:
             line_list.append([line_x, line_y, line_z])
 
         return line_list
+
+    def addline_spfa(self):
+
 
     def addline(self, net_num):
         # add a line
