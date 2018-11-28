@@ -208,6 +208,13 @@ class chip:
 
                 return current_cost
 
+            # up level
+            if u[0] < 6:
+                if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
+                    queue.append([u[0] + 1, u[1], u[2], left])
+                    visit[u[0] + 1][u[1]][u[2]] = 1
+                    right = right + 1
+
             # 4 directions in same level
             for i in range(4):
                 tx = u[1] + four_direction[i][0]
@@ -225,13 +232,6 @@ class chip:
                 if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == -1:
                     queue.append([u[0] - 1, u[1], u[2], left])
                     visit[u[0] - 1][u[1]][u[2]] = 1
-                    right = right + 1
-
-            # up level
-            if u[0] < 6:
-                if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
-                    queue.append([u[0] + 1, u[1], u[2], left])
-                    visit[u[0] + 1][u[1]][u[2]] = 1
                     right = right + 1
 
             left = left + 1
