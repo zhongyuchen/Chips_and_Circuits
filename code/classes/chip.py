@@ -333,7 +333,8 @@ class chip:
                "wire": self.wire,
                "used_wired": self.used_wired,
                "size": self.size,
-               "map_line": self.map_line}
+               "map_line": self.map_line,
+               "grid_value": self.grid_value}
         with open(filename, 'w') as f:
             json.dump(dic, f, indent=4)
 
