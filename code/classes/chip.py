@@ -349,3 +349,4 @@ class chip:
         self.wire = dic["wire"]
         self.used_wired = dic["used_wired"]
         self.map_line = dic["map_line"]
+        self.grid_value = dic["grid_value"]
