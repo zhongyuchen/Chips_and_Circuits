@@ -83,6 +83,8 @@ if __name__ == "__main__":
     while ans != total_wires:
         chip_test = chip(size1, gate1, netlist2)
         ans = astar(chip_test)
+        if ans < 38:
+            continue
         print("wires: %f" % ans, end=" ")
         print("cost: %f" % chip_test.cost())
 
