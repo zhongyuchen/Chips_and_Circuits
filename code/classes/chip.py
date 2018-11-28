@@ -8,17 +8,14 @@ import json
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
 
-four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-<<<<<<< HEAD
 RESULTS_PATH = "../../results/"
-=======
+
+four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 diagonal_four_direction = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
 enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
                      [2, 2], [2, 1], [2, 0], [2, -1],
                      [2, -2], [1, -2], [0, -2], [-1, -2],
                      [-2, -2], [-2, -1], [-2, 0], [-2, 1]]
->>>>>>> 6ee2da03b67557732653e1c06dc055bbb7b26b0b
-
 
 class chip:
     # data structure
@@ -207,8 +204,6 @@ class chip:
             line_list.append([line_x, line_y, line_z])
 
         return line_list
-
-    def addline_spfa(self):
 
 
     def addline(self, net_num):
