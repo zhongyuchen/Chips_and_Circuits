@@ -45,6 +45,13 @@ class chip:
 
         self.map_line = [[] for i in range(len(self.net))]
 
+        self.grid_value = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+
+        for i in range(self.size[0]):
+            for j in range(self.size[1]):
+                for k in range(self.size[2]):
+                    self.grid_value[i][j][k] = self.calc_grid_cost(j, k, i)
+
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
         # list of the gates' coordinates
@@ -141,6 +148,8 @@ class chip:
             return 0
         if self.grid[0][tx][ty] == -1:
             return c
+        else:
+            return 0
 
     def calc_grid_cost(self, x, y, z):
         ret = 1
