@@ -17,6 +17,16 @@
  - wires are not allowed to pass by all the other gates
  - what are the wires that should be taken out?
  - visualize incomplete grid, find the problem, try to write heuristics to prevent it
- - the cost of the solution
  - hill climber to improve a solution: make a modification, save the better one
+ - remove unconnected gates!
+ - info showed in a graph???
+ 
+presentation on Friday
+ - introdution: constrain
+ - states base, bound,
+ - methods to solve
+ - experiment
+ - result, explain
+ - what makes it difficult?
+ - future research that can be done?
  
