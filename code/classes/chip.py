@@ -9,6 +9,11 @@ plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1b
 
 
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+diagonal_four_direction = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
+                     [2, 2], [2, 1], [2, 0], [2, -1],
+                     [2, -2], [1, -2], [0, -2], [-1, -2],
+                     [-2, -2], [-2, -1], [-2, 0], [-2, 1]]
 
 
 class chip:
@@ -129,6 +134,37 @@ class chip:
         fig = go.Figure(data=data, layout=layout)
         # plot figure
         py.plot(fig, filename='chip-3d', validate=False)
+
+    def calc_single_cost_impact(self, tx, ty, c):
+        if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
+            continue
+        if self.grid[0][tx][ty] == -1:
+            return c
+
+    def calc_grid_cost(self, x, y, z):
+        ret = 1
+        if z != 0:
+            return ret
+
+        # calc the 4 cost positions
+        for i in range(4):
+            tx = x + four_direction[i][0]
+            ty = y + four_direction[i][1]
+            ret = ret + self.calc_single_cost_impact(tx, ty, 4)
+
+        # calc the 2 cost positions
+        for i in range(4):
+            tx = x + diagonal_four_direction[i][0]
+            ty = y + diagonal_four_direction[i][1]
+            ret = ret + self.calc_single_cost_impact(tx, ty, 2)
+
+        # calc the 1 cost postisions
+        for i in range(16):
+            tx = x + enclosure_level_2[i][0]
+            ty = y + enclosure_level_2[i][1]
+            ret = ret + self.calc_single_cost_impact(tx, ty , 1)
+
+        return ret
 
     def output_map(self, f):
         # for debug
