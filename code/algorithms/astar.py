@@ -1,5 +1,5 @@
 import random
-from readjson import readjson
+from readjson import readjson, loadchip
 import sys
 sys.path.append('../')
 from classes.chip import chip
@@ -82,10 +82,7 @@ if __name__ == "__main__":
         print(f"wires: {ans}", end=" ")
         print(f"cost: {chip_test.cost()}")
 
-    # wirelist = chip.output_line()
-    # i = 1
-    # for wire in wirelist:
-    #     print(i)
-    #     print(wire)
-    #     i += 1
+    chip_test.save("astar-s1g1n1-000-%04d.json" % chip_test.cost())
+    # chip_test.load("astar-s1g1n1-000-0415.json")
+    # chip_test = loadchip("astar-s1g1n1-000-0415.json")
     chip_test.plot()
