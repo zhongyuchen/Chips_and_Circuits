@@ -2,18 +2,18 @@ import numpy as np
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-import sys
+import json
 
 
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
 
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+RESULTS_PATH = "../../results/"
 
 
 class chip:
     # data structure
-    # cnt_wire = 0
     grid = []
     gate = []
     net = []
@@ -278,3 +278,26 @@ class chip:
             sum += len(wire) - 1
         return sum
 
+    def save(self, filename):
+        filename = RESULTS_PATH + filename
+        dic = {"grid": self.grid.tolist(),
+               "gate": self.gate,
+               "net": self.net,
+               "wire": self.wire,
+               "used_wired": self.used_wired,
+               "size": self.size,
+               "map_line": self.map_line}
+        with open(filename, 'w') as f:
+            json.dump(dic, f, indent=4)
+
+    def load(self, filename):
+        filename = RESULTS_PATH + filename
+        with open(filename, 'r') as f:
+            dic = json.load(f)
+        self.size = dic["size"]
+        self.gate = dic["gate"]
+        self.net = dic["net"]
+        self.grid = dic["grid"]
+        self.wire = dic["wire"]
+        self.used_wired = dic["used_wired"]
+        self.map_line = dic["map_line"]
