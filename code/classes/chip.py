@@ -58,7 +58,7 @@ class chip:
         # list of the gates' coordinates
         self.gate = gatelist
 
-    def plot(self):
+    def plot(self, figname=""):
         # visualization
         data = []
         # gates
@@ -103,7 +103,7 @@ class chip:
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, self.size[1]),
+                    range=(0, self.size[1] - 1),
                     dtick=1
                 ),
                 yaxis=dict(
@@ -111,7 +111,7 @@ class chip:
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, self.size[2]),
+                    range=(0, self.size[2] - 1),
                     dtick=1
                 ),
                 zaxis=dict(
@@ -119,7 +119,7 @@ class chip:
                     zerolinecolor='rgb(255, 255, 255)',
                     showbackground=True,
                     backgroundcolor='rgb(230, 230,230)',
-                    range=(0, self.size[0]),
+                    range=(0, self.size[0] - 1),
                     dtick=1
                 ),
                 camera=dict(
@@ -142,7 +142,11 @@ class chip:
         # figure
         fig = go.Figure(data=data, layout=layout)
         # plot figure
-        py.plot(fig, filename='chip-3d', validate=False)
+        if figname == "":
+            filename = "chip-3d"
+        else:
+            filename = figname
+        py.plot(fig, filename=filename, validate=False)
 
     def calc_single_cost_impact(self, tx, ty, c):
         if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
