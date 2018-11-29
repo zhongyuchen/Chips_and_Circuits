@@ -7,7 +7,7 @@ from classes.chip import chip
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 
-def check_node_spfa(chip, u, v, queue, left, right, dis, visit, en):
+def check_node_spfa(chip, u, v, queue, left, dis, visit, en):
     if chip.used_wired[v[0]][v[1]][v[2]] == -1 and (
                 (v[0] == 0 and v[1] == chip.gate[en][0] and v[2] == chip.gate[en][1]) or  # the ending gate
                 (chip.grid[v[0]][v[1]][v[2]] != -1)  # not a gate
@@ -19,7 +19,8 @@ def check_node_spfa(chip, u, v, queue, left, right, dis, visit, en):
                 visit[v[0]][v[1]][v[2]] = 1
                 queue.append([v[0], v[1], v[2], left])
 
-                right = right + 1
+                return 1
+    return 0
 
 
 def addline_spfa(chip, net_num):
@@ -71,7 +72,7 @@ def addline_spfa(chip, net_num):
             v[0] = u[0] + 1
             v[1] = u[1]
             v[2] = u[2]
-            check_node_spfa(chip, u, v, queue, left, right, dis, visit, en)
+            right = right + check_node_spfa(chip, u, v, queue, left, dis, visit, en)
 
         # 4 directions in same level
         for i in range(4):
@@ -83,14 +84,14 @@ def addline_spfa(chip, net_num):
             v[0] = u[0]
             v[1] = tx
             v[2] = ty
-            check_node_spfa(chip, u, v, queue, left, right, dis, visit, en)
+            right = right + check_node_spfa(chip, u, v, queue, left, dis, visit, en)
 
         # down level
         if u[0] > 0:
             v[0] = u[0] - 1
             v[1] = u[1]
             v[2] = u[2]
-            check_node_spfa(chip, u, v, queue, left, right, dis, visit, en)
+            right = right + check_node_spfa(chip, u, v, queue, left, dis, visit, en)
 
         left = left + 1
     return -1
@@ -196,6 +197,7 @@ if __name__ == "__main__":
     while ans != total_wires:
         chip_test = chip(size1, gate1, netlist1)
         ans = astar_spfa(chip_test)
+
         print("wires: %f" % ans, end=" ")
         print("cost: %f" % chip_test.cost())
 
