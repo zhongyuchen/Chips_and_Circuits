@@ -22,11 +22,14 @@
  - info showed in a graph???
  
 presentation on Friday
- - introdution: constrain
+ - introduction: make sure everyone understand your case, constrain
  - states base, bound,
- - methods to solve
+ - methods to solve, how to solve, the algorithms used,
+ explain them
  - experiment
- - result, explain
+ - result, cost, what they looks like, explain
+ - conclusion: comparison, explain why it's better (algorithm and case)
  - what makes it difficult?
- - future research that can be done?
+ - future research that can be done? why the algorithms are suitable for solve our case
  
+ - hill climber
