@@ -121,7 +121,7 @@ def del_and_add_spfa(chip, delline_num, addline_num):
         return 0
 
 
-def astar(chip):
+def astar_spfa(chip):
     random.shuffle(chip.net)
 
     cnt = 0
@@ -188,14 +188,14 @@ def astar(chip):
 if __name__ == "__main__":
     size1 = readjson("gridsizes.json", 1)
     gate1 = readjson("gatelists.json", 1)
-    netlist2 = readjson("netlists.json", 1)
+    netlist1 = readjson("netlists.json", 1)
 
     ans = 0
-    total_wires = len(netlist2)
+    total_wires = len(netlist1)
     print(total_wires)
     while ans != total_wires:
-        chip_test = chip(size1, gate1, netlist2)
-        ans = astar(chip_test)
+        chip_test = chip(size1, gate1, netlist1)
+        ans = astar_spfa(chip_test)
         print("wires: %f" % ans, end=" ")
         print("cost: %f" % chip_test.cost())
 
