@@ -75,14 +75,15 @@ if __name__ == "__main__":
     gate1 = readjson("gatelists.json", 1)
     netlist1 = readjson("netlists.json", 1)
 
-    ans = 0
-    while ans != 30:
-        chip_test = chip(size1, gate1, netlist1)
-        ans = astar(chip_test)
-        print(f"wires: {ans}", end=" ")
-        print(f"cost: {chip_test.cost()}")
+    # ans = 0
+    # while ans != len(netlist1):
+    #     chip_test = chip(size1, gate1, netlist1)
+    #     ans = astar(chip_test)
+    #     print(f"wires: {ans}", end=" ")
+    #     print(f"cost: {chip_test.cost()}")
 
-    chip_test.save("astar-s1g1n1-000-%04d.json" % chip_test.cost())
-    # chip_test.load("astar-s1g1n1-000-0415.json")
+    # chip_test.save("astar-1-1-000-%04d.json" % chip_test.cost())
+    # chip_test.load("astar-1-1-000-0373.json")
     # chip_test = loadchip("astar-s1g1n1-000-0415.json")
-    chip_test.plot()
+    chip_test = chip(size1, gate1, netlist1)
+    chip_test.plot("astar-1-1-000-empty")
