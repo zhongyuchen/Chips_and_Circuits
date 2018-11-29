@@ -187,9 +187,9 @@ def astar_spfa(chip):
 
 
 if __name__ == "__main__":
-    size1 = readjson("gridsizes.json", 1)
-    gate1 = readjson("gatelists.json", 1)
-    netlist1 = readjson("netlists.json", 1)
+    size1 = readjson("gridsizes.json", 2)
+    gate1 = readjson("gatelists.json", 2)
+    netlist1 = readjson("netlists.json", 4)
 
     ans = 0
     total_wires = len(netlist1)
