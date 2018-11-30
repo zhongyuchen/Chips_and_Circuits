@@ -177,7 +177,7 @@ class chip:
         for i in range(16):
             tx = x + enclosure_level_2[i][0]
             ty = y + enclosure_level_2[i][1]
-            ret = ret + self.calc_single_cost_impact(tx, ty , 1)
+            ret = ret + self.calc_single_cost_impact(tx, ty, 1)
 
         return ret
 

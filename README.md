@@ -22,10 +22,10 @@
  - info showed in a graph???
  
 presentation on Friday
- - introduction: make sure everyone understand your case, constrain
- - states base, bound,
+ - introduction: make sure everyone understand your case, constrain 
+ - states base, bound, 
  - methods to solve, how to solve, the algorithms used,
- explain them
+ explain them 
  - experiment
  - result, cost, what they looks like, explain
  - conclusion: comparison, explain why it's better (algorithm and case)
