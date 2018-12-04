@@ -194,6 +194,7 @@ if __name__ == "__main__":
     print(total_wires)
     while ans != total_wires:
         chip_test = chip(size1, gate1, netlist1)
+        random.shuffle(chip_test.net)
         ans = astar_spfa(chip_test)
 
         print("wires: %f" % ans, end=" ")
