@@ -12,40 +12,32 @@ import plotly.graph_objs as go
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
 
 
-def hillclimbing_longest(chip, steps):
+def hillclimbing(chip, steps, get_wire_num):
     print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip_test.cost()}...")
-    costs = [chip_test.cost()]
+    print(f"Start with a cost of {chip.cost()}...")
+    costs = [chip.cost()]
 
     for i in range(steps):
-        wire_num = longest_wire(chip)
+        # get wire num function
+        if get_wire_num == "random_wire":
+            wire_num = random_wire(chip)
+        elif get_wire_num == "longest_wire":
+            wire_num = longest_wire(chip)
+        else:
+            print("Wrong get_wire_num function!")
+            break
+
+        # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        fail = chip.del_and_add(wire_num, wire_num)
-        if fail:
+
+        chip.delline(wire_num)
+        fail = chip.addline(wire_num)
+        if fail == -1:
             print(f"failed {fail}")
             break
         else:
-            print(f"cost {chip_test.cost()}")
-            costs.append(chip_test.cost())
-
-    return costs
-
-
-def hillclimbing_random(chip, steps):
-    print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip_test.cost()}...")
-    costs = [chip_test.cost()]
-
-    for i in range(steps):
-        wire_num = random_wire(chip)
-        print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        fail = chip.del_and_add(wire_num, wire_num)
-        if fail:
-            print(f"failed {fail}")
-            break
-        else:
-            print(f"cost {chip_test.cost()}")
-            costs.append(chip_test.cost())
+            print(f"cost {chip.cost()}")
+            costs.append(chip.cost())
 
     return costs
 
@@ -63,6 +55,8 @@ def longest_wire(chip):
 
 def longest_wires(chip):
     # get the number of the longest wire(s)
+    # the cost only drops once or doesn't drop at all
+    # improment ~ 2
     wires_num = []
     max_length = 0
     for i, wire in enumerate(chip.map_line):
@@ -76,6 +70,8 @@ def longest_wires(chip):
 
 
 def random_wire(chip):
+    # get stable around 50 steps
+    # improvement ~ 10
     return random.randint(0, len(chip.net) - 1)
 
 
@@ -84,7 +80,7 @@ def lineplot(costs_list, filename=""):
     data = []
     for i, costs in enumerate(costs_list):
         trace = go.Scatter(
-            x=[0 for i in range(len(costs))],
+            x=list(range(len(costs))),
             y=costs,
             mode='lines',
             name=f'Method {i}'
@@ -92,13 +88,15 @@ def lineplot(costs_list, filename=""):
         data.append(trace)
 
     layout = dict(
-        title="hillclimbing costs"
+        title="hillclimbing costs",
+        xaxis=dict(title='step'),
+        yaxis=dict(title='cost')
     )
 
     if filename == "":
         filename = "hillclimbing costs"
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=filename, validate=False)
+    py.plot(fig, filename=filename)
 
 
 if __name__ == "__main__":
@@ -108,19 +106,17 @@ if __name__ == "__main__":
     steps = 1000
 
     print("Finding a solution with astar...")
+    chip0 = chip(size1, gate1, netlist1)
     ans = 0
     i = 0
     while ans != len(netlist1):
-        chip_test = chip(size1, gate1, netlist1)
-        ans = astar(chip_test)
-        print(f"{i}: {ans} connected, with a cost of {chip_test.cost()}")
+        chip0 = chip(size1, gate1, netlist1)
+        ans = astar(chip0)
+        print(f"{i}: {ans} connected, with a cost of {chip0.cost()}")
         i += 1
     print("Solution found!")
 
-    # chip_test.plot(f"astar-1-1-{chip_test.cost()}-before")
-    # hillclimbing(chip_test, steps)
-    # chip_test.plot(f"astar-1-1-{chip_test.cost()}-after")
-
-    costs0 = hillclimbing_longest(chip_test, steps)
-    costs1 = hillclimbing_random(chip_test, steps)
+    chip1 = chip0
+    costs0 = hillclimbing(chip0, steps, "longest_wire")
+    costs1 = hillclimbing(chip1, steps, "random_wire")
     lineplot([costs0, costs1])
