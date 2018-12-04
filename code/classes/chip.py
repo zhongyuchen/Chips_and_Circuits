@@ -58,6 +58,21 @@ class chip:
         # list of the gates' coordinates
         self.gate = gatelist
 
+    def manhattan_distance_weight(self):
+        def mapping(distance):
+            return - distance + 50
+
+        def manhattan_distance(point, gate):
+            return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
+
+        self.grid_value = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+
+        for i in range(self.size[0]):
+            for j in range(self.size[1]):
+                for k in range(self.size[2]):
+                    for gate in self.gate:
+                        self.grid_value[i][j][k] += mapping(manhattan_distance([i, j, k], gate))
+
     def plot(self, figname=""):
         # visualization
         data = []
@@ -218,7 +233,6 @@ class chip:
             line_list.append([line_x, line_y, line_z])
 
         return line_list
-
 
     def addline(self, net_num):
         # add a line
