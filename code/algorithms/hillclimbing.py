@@ -22,13 +22,12 @@ def hillclimbing_longest(chip, steps):
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
         fail = chip.del_and_add(wire_num, wire_num)
         if fail:
-            print("failed")
+            print(f"failed {fail}")
             break
         else:
             print(f"cost {chip_test.cost()}")
             costs.append(chip_test.cost())
 
-    print("Success!")
     return costs
 
 
@@ -42,13 +41,12 @@ def hillclimbing_random(chip, steps):
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
         fail = chip.del_and_add(wire_num, wire_num)
         if fail:
-            print("failed")
+            print(f"failed {fail}")
             break
         else:
             print(f"cost {chip_test.cost()}")
             costs.append(chip_test.cost())
 
-    print("Success!")
     return costs
 
 
