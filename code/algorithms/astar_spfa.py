@@ -123,8 +123,6 @@ def del_and_add_spfa(chip, delline_num, addline_num):
 
 
 def astar_spfa(chip):
-    random.shuffle(chip.net)
-
     cnt = 0
     for pair_gate in chip.net:
         cost = addline_spfa(chip, cnt)

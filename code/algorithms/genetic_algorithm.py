@@ -59,6 +59,7 @@ def cycle_crossover(parent_generation, father, mother):
 
     father_list = chip_father.net
     mother_list = chip_mother.net
+
     # print(father_list)
     # print(mother_list)
     # print('-----')

@@ -3,6 +3,7 @@ import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 import json
+import random
 
 
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
@@ -37,6 +38,7 @@ class chip:
         # 3D grid -> -1: gate, 0: available, > 0: wire number
 
         self.net = netlist
+        random.shuffle(chip.net)
 
         self.grid = np.zeros([size[0], size[1], size[2]])
         self.size = size
