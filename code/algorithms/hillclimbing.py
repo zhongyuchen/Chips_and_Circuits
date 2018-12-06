@@ -120,3 +120,6 @@ if __name__ == "__main__":
     costs0 = hillclimbing(chip0, steps, "longest_wire")
     costs1 = hillclimbing(chip1, steps, "random_wire")
     lineplot([costs0, costs1])
+
+    # take out a few wires and try to re-add them at a time
+    # randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
