@@ -8,19 +8,25 @@
 import random
 from readjson import readjson, loadchip
 import sys
+
 sys.path.append('../')
 from classes.chip import chip
-import astar_spfa
+from astar_spfa import astar_spfa
 import os
 import shutil
+import operator
 
 POOL_SIZE = 5000
-PARENT_SIZE = 50 # this must be even number
+PARENT_SIZE = 50  # this must be even number
 GENERATION_SIZE = 10
 GA_PATH = "../../results/GApool"
 
+chipsize = readjson("gridsizes.json", 1)
+chipgate = readjson("gatelists.json", 1)
+chipnetlist = readjson("netlists.json", 3)
 
-def create_pool(chipsize, chipgate, chipnetlist):
+
+def create_pool():
     total_wires = len(chipnetlist)
     index = [[] for i in range(POOL_SIZE)]
 
@@ -35,7 +41,6 @@ def create_pool(chipsize, chipgate, chipnetlist):
 
 
 def load_pool(gene):
-
     # scan filename.
     index = []
     files = os.listdir(GA_PATH + '/generation' + str(gene))
@@ -52,42 +57,122 @@ def load_pool(gene):
     return index_parent
 
 
-def cycle_crossover(parent_generation, father, mother):
-    dict = "/GApool/generation" + str(parent_generation) + '/'
-    chip_father = loadchip(dict + "astar-%04d-%02d.json" % (father[0], father[1]))
-    chip_mother = loadchip(dict + "astar-%04d-%02d.json" % (mother[0], mother[1]))
+def cycle_crossover(parent_generation, father, mother, cnt, round_number):
+    dict_parent = 'GApool/generation' + str(parent_generation) + '/'
+    dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
+    chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
+    chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
 
     father_list = chip_father.net
     mother_list = chip_mother.net
 
-    # print(father_list)
-    # print(mother_list)
-    # print('-----')
+    list_len = len(father_list)
+    visit = [0 for i in range(list_len)]
+
+    child_list = [[] for i in range(list_len)]
+
+    for t in range(round_number):
+        for i in range(list_len):
+            if visit[i] == 1:
+                continue
+
+            temp = father_list[i]
+            pos = i
+            visit[i] = 1
+            child_list[i] = father_list[i]
+
+            while operator.eq(mother_list[pos], temp) == False:
+                for j in range(list_len):
+                    if operator.eq(father_list[j], mother_list[pos]):
+                        pos = j
+                        visit[pos] = 1
+                        child_list[pos] = father_list[pos]
+                        break
+
+    for j in range(list_len):
+        if len(child_list[j]):
+            pass
+        else:
+            child_list[j] = mother_list[j]
+
+    if operator.eq(child_list, mother_list) or operator.eq(child_list, father_list):
+        pass
+    else:
+        # save child_list in child_chip.net
+        child_chip = chip(chipsize, chipgate, chipnetlist)
+        child_chip.net = child_list
+        ans = astar_spfa(child_chip)
+        child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
+        cnt = cnt + 1
+
+    # swap father_list and mother_list
+    father_list = chip_mother.net
+    mother_list = chip_father.net
+
+    list_len = len(father_list)
+    visit = [0 for i in range(list_len)]
+
+    child_list = [[] for i in range(list_len)]
+
+    for t in range(round_number):
+        for i in range(list_len):
+            if visit[i] == 1:
+                continue
+
+            temp = father_list[i]
+            pos = i
+            visit[i] = 1
+            child_list[i] = father_list[i]
+
+            while mother_list[pos] != temp:
+                for j in range(list_len):
+                    if father_list[j] == mother_list[pos]:
+                        pos = j
+                        visit[pos] = 1
+                        child_list[pos] = father_list[pos]
+                        break
+
+    for j in range(list_len):
+        if len(child_list[j]):
+            pass
+        else:
+            child_list[j] = mother_list[j]
+
+    if operator.eq(child_list, mother_list) or operator.eq(child_list, father_list):
+        pass
+    else:
+        # save child_list in child_chip.net
+        child_chip = chip(chipsize, chipgate, chipnetlist)
+        child_chip.net = child_list
+        ans = astar_spfa(child_chip)
+        child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
+        cnt = cnt + 1
+
+    return cnt
 
 
 def work_each_generation(parent_generation, index_parent):
-
     # copy the parent files for next generation
 
     dict_parent = GA_PATH + '/generation' + str(parent_generation) + '/'
-    dcit_child = GA_PATH + '/generation' + str(parent_generation + 1) + '/'
+    dict_child = GA_PATH + '/generation' + str(parent_generation + 1) + '/'
 
     cnt = 0
     for i in range(PARENT_SIZE):
         src_file = dict_parent + "astar-%04d-%02d.json" % (index_parent[i][0], index_parent[i][1])
-        dst_file = dcit_child + "astar-%04d-%02d.json" % (cnt, index_parent[i][1])
+        dst_file = dict_child + "astar-%04d-%02d.json" % (cnt, index_parent[i][1])
         shutil.copy(src_file, dst_file)
         cnt = cnt + 1
 
     # work for children generation
+    random.shuffle(index_parent)  # select proportionate randomly
     for i in range(PARENT_SIZE):
-        if (i&1) == 0:
-            cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1])
+        print(i, cnt)
+        if (i & 1) == 0:
+            cnt = cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt, 3)
 
 
 def genetic_algorithm_main():
-    index_parent = []
-
     for generation in range(1, GENERATION_SIZE + 1):
 
         parent_generation = generation - 1
@@ -102,13 +187,9 @@ def genetic_algorithm_main():
 
         work_each_generation(parent_generation, index_parent)
 
-        break
+        print("---", generation)
 
 
 if __name__ == '__main__':
-    chipsize = readjson("gridsizes.json", 1)
-    chipgate = readjson("gatelists.json", 1)
-    chipnetlist = readjson("netlists.json", 3)
-
-    # create_pool(chipsize, chipgate, chipnetlist)
-    genetic_algorithm_main()
+    # create_pool()
+    genetic_algorithm_main()  # fitness proportionate selection
