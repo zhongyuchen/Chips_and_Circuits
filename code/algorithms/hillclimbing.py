@@ -6,6 +6,7 @@ import random
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
+import copy
 
 
 plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
@@ -23,6 +24,8 @@ def longest_wire(chip):
 
 
 def hc_longest_wire(chip, step):
+    # the cost drops once for ~ 2, or doesn't drop at all
+
     print("Starting to climb a hill...")
     print(f"Start with a cost of {chip.cost()}...")
     costs = [chip.cost()]
@@ -44,56 +47,6 @@ def hc_longest_wire(chip, step):
     return costs
 
 
-def longest_wires(chip):
-    # get the number of the longest wire(s)
-    # the cost only drops once or doesn't drop at all
-    # improment ~ 2
-    wires_num = []
-    max_length = 0
-    for i, wire in enumerate(chip.map_line):
-        if len(wire) > max_length:
-            wires_num = [i]
-            max_length = len(wire)
-        elif len(wire) == max_length:
-            wires_num.append(i)
-
-    return wires_num
-
-
-def hc_longest_wires(chip, steps):
-    print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip.cost()}...")
-    costs = [chip.cost()]
-
-    for i in range(steps):
-        # get wire num function
-        wire_num = longest_wires(chip)
-
-        # climb
-        print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        chip.rollback_wires = []
-
-        # delete the selected wires
-        for w in wire_num:
-            chip.delline(w, 1)
-
-        # re-add
-        random.shuffle(wire_num)
-        for w in wire_num:
-            fail = chip.addline(w, 1)
-            if fail == -1:
-                # fail
-                print(f"failed", end=" ")
-                # rollback
-                chip.rollback()
-                break
-
-        print(f"cost {chip.cost()}")
-        costs.append(chip.cost())
-
-    return costs
-
-
 def random_wire(chip):
     # get stable around 50 steps
     # improvement ~ 10
@@ -101,6 +54,7 @@ def random_wire(chip):
 
 
 def hc_random_wire(chip, steps):
+    # keep dropping for 80 steps, cost reduces ~ 10
     print("Starting to climb a hill...")
     print(f"Start with a cost of {chip.cost()}...")
     costs = [chip.cost()]
@@ -132,6 +86,9 @@ def random_wires(chip, amount):
 
 
 def hc_random_wires(chip, steps, amount):
+    # sometimes gets good optimization
+    # but highly unstable, comparing to hc_random_wires_reduce
+    # good for getting states that aren't reachable for hc_random_wires_reduce
     print("Starting to climb a hill...")
     print(f"Start with a cost of {chip.cost()}...")
     costs = [chip.cost()]
@@ -142,22 +99,25 @@ def hc_random_wires(chip, steps, amount):
 
         # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        chip.rollback_wires = []
+        chip_temp = copy.deepcopy(chip)
 
         # delete the selected wires
         for w in wire_num:
-            chip.delline(w, 1)
+            chip_temp.delline(w)
 
         # re-add
         random.shuffle(wire_num)
+        fail = 0
         for w in wire_num:
-            fail = chip.addline(w, 1)
+            fail = chip_temp.addline(w)
             if fail == -1:
                 # fail
                 print(f"failed", end=" ")
-                # rollback
-                chip.rollback()
                 break
+
+        # success
+        if fail != -1:
+            chip = chip_temp
 
         print(f"cost {chip.cost()}")
         costs.append(chip.cost())
@@ -165,7 +125,9 @@ def hc_random_wires(chip, steps, amount):
     return costs
 
 
-def hc_random_wires_better(chip, steps, amount):
+def hc_random_wires_reduce(chip, steps, amount):
+    # quite promising
+    # after 1500 steps, cost still drops
     print("Starting to climb a hill...")
     print(f"Start with a cost of {chip.cost()}...")
     costs = [chip.cost()]
@@ -176,26 +138,25 @@ def hc_random_wires_better(chip, steps, amount):
 
         # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        old_cost = chip.cost()
-        chip.rollback_wires = []
+        chip_temp = copy.deepcopy(chip)
 
         # delete the selected wires
         for w in wire_num:
-            chip.delline(w, 1)
+            chip_temp.delline(w)
 
         # re-add
         random.shuffle(wire_num)
         fail = 0
         for w in wire_num:
-            fail = chip.addline(w, 1)
+            fail = chip_temp.addline(w)
             if fail == -1:
                 # fail
                 print("failed", end=" ")
                 break
 
-        if old_cost <= chip.cost() or fail == -1:
-            chip.rollback()
-            print("rollback", end=" ")
+        # success
+        if chip_temp.cost() < chip.cost() and fail != -1:
+            chip = chip_temp
 
         print(f"cost {chip.cost()}")
         costs.append(chip.cost())
@@ -238,22 +199,20 @@ if __name__ == "__main__":
     gate1 = readjson("gatelists.json", 1)
     netlist2 = readjson("netlists.json", 2)
 
-    steps = 500
+    steps = 2000
 
-    filename = "astar-1-2-000-0523.json"
-    chip0 = loadchip(filename)
-    chip1 = loadchip(filename)
-    chip2 = loadchip(filename)
-    chip3 = chip0.copy()
+    chip0 = loadchip("astar-1-2-000-0523.json")
+    # chip1 = copy.deepcopy(chip0)
+    chip2 = copy.deepcopy(chip0)
+    chip3 = copy.deepcopy(chip0)
 
     cn = []
-    cn.append([hc_random_wire(chip0, steps), "random_wire"])
-    # cn.append([hc_random_wires(chip1, steps, 3), "random_wires"])
-    # cn.append([hc_random_wires_better(chip2, steps, 3), "random_wires_better"])
-    cn.append([hc_random_wires_better(chip3, steps, 3), "random_wires_better"])
+    # cn.append([hc_longest_wire(chip0, steps), "hc_longest_wire"])
+    # cn.append([hc_random_wire(chip1, steps), "hc_random_wire"])
+    cn.append([hc_random_wires(chip2, steps, 3), "hc_random_wires"])
+    cn.append([hc_random_wires_reduce(chip3, steps, 3), "hc_random_wires_reduce"])
     lineplot(cn)
 
-    # problem: just make a deep copy
     # randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
     # put back in different orders
     # ppa
