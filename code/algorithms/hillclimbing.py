@@ -71,6 +71,7 @@ def hc_longest_wires(chip, steps):
 
         # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
+        chip.rollback_wires = []
 
         # delete the selected wires
         for w in wire_num:
@@ -141,6 +142,7 @@ def hc_random_wires(chip, steps, amount):
 
         # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
+        chip.rollback_wires = []
 
         # delete the selected wires
         for w in wire_num:
@@ -175,6 +177,7 @@ def hc_random_wires_better(chip, steps, amount):
         # climb
         print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
         old_cost = chip.cost()
+        chip.rollback_wires = []
 
         # delete the selected wires
         for w in wire_num:
@@ -182,15 +185,17 @@ def hc_random_wires_better(chip, steps, amount):
 
         # re-add
         random.shuffle(wire_num)
+        fail = 0
         for w in wire_num:
             fail = chip.addline(w, 1)
             if fail == -1:
                 # fail
-                print(f"failed", end=" ")
+                print("failed", end=" ")
                 break
 
         if old_cost <= chip.cost() or fail == -1:
             chip.rollback()
+            print("rollback", end=" ")
 
         print(f"cost {chip.cost()}")
         costs.append(chip.cost())
