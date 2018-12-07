@@ -59,6 +59,16 @@ class chip:
         # list of the gates' coordinates
         self.gate = gatelist
 
+    def copy(self):
+        c = chip(self.size, self.gate, self.net)
+        c.grid = self.grid
+        c.wire = self.wire
+        c.used_wired = self.used_wired
+        c.grid_value = self.grid_value
+        c.rollback_wires = self.rollback_wires
+        c.map_line = self.map_line
+        return c
+
     def rollback(self):
         self.rollback_wires.reverse()
         for wire in self.rollback_wires:

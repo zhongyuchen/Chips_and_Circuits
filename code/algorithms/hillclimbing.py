@@ -244,11 +244,17 @@ if __name__ == "__main__":
     chip0 = loadchip(filename)
     chip1 = loadchip(filename)
     chip2 = loadchip(filename)
+    chip3 = chip0.copy()
 
     cn = []
     cn.append([hc_random_wire(chip0, steps), "random_wire"])
-    cn.append([hc_random_wires(chip1, steps, 3), "random_wires"])
-    cn.append([hc_random_wires_better(chip2, steps, 3), "random_wires_better"])
+    # cn.append([hc_random_wires(chip1, steps, 3), "random_wires"])
+    # cn.append([hc_random_wires_better(chip2, steps, 3), "random_wires_better"])
+    cn.append([hc_random_wires_better(chip3, steps, 3), "random_wires_better"])
     lineplot(cn)
 
+    # problem: just make a deep copy
     # randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
+    # put back in different orders
+    # ppa
+    # hillclimbing for a solution
