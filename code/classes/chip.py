@@ -26,14 +26,12 @@ class chip:
     used_wired = []
     size = []
     grid_value = []
-    rollback_wires = []
     map_line = []
 
     def __init__(self, size, gatelist, netlist):
         # line number
         # self.cnt_wire = 0
         self.wire = []
-        self.rollback_wires = []
         # 3D grid -> -1: gate, 0: available, > 0: wire number
 
         self.net = netlist
@@ -58,27 +56,6 @@ class chip:
 
         # list of the gates' coordinates
         self.gate = gatelist
-
-    def copy(self):
-        c = chip(self.size, self.gate, self.net)
-        c.grid = self.grid
-        c.wire = self.wire
-        c.used_wired = self.used_wired
-        c.grid_value = self.grid_value
-        c.rollback_wires = self.rollback_wires
-        c.map_line = self.map_line
-        return c
-
-    def rollback(self):
-        self.rollback_wires.reverse()
-        for wire in self.rollback_wires:
-            if wire[1]:
-                # delete added wire
-                self.delline(wire[0])
-            else:
-                # add deleted wire
-                self.addline(wire[0])
-        self.rollback_wires = []
 
     def manhattan_distance_weight(self):
         def mapping(distance):
@@ -256,7 +233,7 @@ class chip:
 
         return line_list
 
-    def addline(self, net_num, rollback_flag=0):
+    def addline(self, net_num):
         # add a line
 
         st = self.net[net_num][0]
@@ -294,10 +271,6 @@ class chip:
                     tmp = queue[tmp][3]
                 self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])
 
-                if rollback_flag:
-                    # 1 for added wires
-                    self.rollback_wires.append([net_num, 1])
-
                 return current_cost
 
             # up level
@@ -329,11 +302,8 @@ class chip:
             left = left + 1
         return -1
 
-    def delline(self, lab_number, rollback_flag=0):
+    def delline(self, lab_number):
         # delete a line
-        if rollback_flag:
-            # 0 for deleted wire
-            self.rollback_wires.append([lab_number, 0])
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
