@@ -20,7 +20,7 @@
  - run the algorithm for a day
  
  - randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
- - put back in different orders
+ - put back in different orders(how many times limited), implement this into the random_wires functions
  - ppa
  - hillclimbing for a solution
  
