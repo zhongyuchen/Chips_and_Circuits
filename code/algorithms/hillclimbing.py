@@ -85,13 +85,27 @@ def random_wires(chip, amount):
     return wires
 
 
-def hc_random_wires(chip, steps, amount):
-    # sometimes gets good optimization
-    # but highly unstable, comparing to hc_random_wires_reduce
-    # good for getting states that aren't reachable for hc_random_wires_reduce
+def hc_random_wires(chip, steps=1000, amount=1, retry=1, function="", filename="hc-"):
+    # flag == "":
+    #     sometimes gets good optimization
+    #     but highly unstable, comparing to hc_random_wires_reduce
+    #     good for getting states that aren't reachable for hc_random_wires_reduce
+    #     fail ratio ~10% (1000 steps, 3 amount, 1 times)
+    #     fail ratio ~8% (1000 steps, 3 amount, 5 times) 523 -> 501, net2
+    #     fail ratio ~30% (1000 steps, 6 amount, 30 times) 523 -> 465, net2
+
+    # flag == "reduce":
+    #     promising
+    #     after 1500 steps, cost still drops
+    #     fail ratio ~98% (1000 steps, 3 amount, 1 times)
+    #     fail ratio ~97.5% (1000 steps, 3 amount, 5 times) 523 -> 461, net2
+    #     fail ratio ~97.5% (1000 steps, 6 amount, 30 times) 523 -> 449, net2
+
     print("Starting to climb a hill...")
     print(f"Start with a cost of {chip.cost()}...")
     costs = [chip.cost()]
+    fail_num = copy.deepcopy(steps)
+    chip_best = copy.deepcopy(chip)
 
     for i in range(steps):
         # get wire num function
@@ -106,61 +120,41 @@ def hc_random_wires(chip, steps, amount):
             chip_temp.delline(w)
 
         # re-add
-        random.shuffle(wire_num)
-        fail = 0
-        for w in wire_num:
-            fail = chip_temp.addline(w)
-            if fail == -1:
-                # fail
-                print(f"failed", end=" ")
+        for j in range(retry):
+            # try another random order
+            random.shuffle(wire_num)
+            chip_temp_temp = copy.deepcopy(chip_temp)
+
+            fail = 0
+            for w in wire_num:
+                fail = chip_temp_temp.addline(w)
+                if fail == -1:
+                    # fail
+                    break
+
+            # success check list
+            check_list = [fail != -1]
+            if function == "reduce":
+                check_list.append(chip_temp_temp.cost() < chip.cost())
+
+            # success
+            if sum(check_list) == len(check_list):
+                chip = chip_temp_temp
+                fail_num -= 1
+                print(f"success", end=" ")
                 break
 
-        # success
-        if fail != -1:
-            chip = chip_temp
+        if chip.cost() < chip_best.cost():
+            chip_best = chip
 
         print(f"cost {chip.cost()}")
         costs.append(chip.cost())
 
-    return costs
+    # save the best!
+    filename += "%04d.json" % chip_best.cost()
+    chip_best.save(filename)
 
-
-def hc_random_wires_reduce(chip, steps, amount):
-    # quite promising
-    # after 1500 steps, cost still drops
-    print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip.cost()}...")
-    costs = [chip.cost()]
-
-    for i in range(steps):
-        # get wire num function
-        wire_num = random_wires(chip, amount)
-
-        # climb
-        print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        chip_temp = copy.deepcopy(chip)
-
-        # delete the selected wires
-        for w in wire_num:
-            chip_temp.delline(w)
-
-        # re-add
-        random.shuffle(wire_num)
-        fail = 0
-        for w in wire_num:
-            fail = chip_temp.addline(w)
-            if fail == -1:
-                # fail
-                print("failed", end=" ")
-                break
-
-        # success
-        if chip_temp.cost() < chip.cost() and fail != -1:
-            chip = chip_temp
-
-        print(f"cost {chip.cost()}")
-        costs.append(chip.cost())
-
+    print(f"All done! {steps} steps and {fail_num} fails")
     return costs
 
 
@@ -199,16 +193,16 @@ if __name__ == "__main__":
     gate1 = readjson("gatelists.json", 1)
     netlist2 = readjson("netlists.json", 2)
 
-    steps = 2000
+    steps = 1000
 
-    chip0 = loadchip("astar-1-2-000-0523.json")
+    chip0 = loadchip("hillclimbing/hc-2-001-0455.json")
     # chip1 = copy.deepcopy(chip0)
-    chip2 = copy.deepcopy(chip0)
+    # chip2 = copy.deepcopy(chip0)
     chip3 = copy.deepcopy(chip0)
 
     cn = []
     # cn.append([hc_longest_wire(chip0, steps), "hc_longest_wire"])
     # cn.append([hc_random_wire(chip1, steps), "hc_random_wire"])
-    cn.append([hc_random_wires(chip2, steps, 3), "hc_random_wires"])
-    cn.append([hc_random_wires_reduce(chip3, steps, 3), "hc_random_wires_reduce"])
+    # cn.append([hc_random_wires(chip2, steps=steps, amount=6, retry=30), "hc_random_wires"])
+    cn.append([hc_random_wires(chip3, steps=steps, amount=6, retry=30, function="reduce", filename="hillclimbing/hc-2-002-"), "hc_random_wires_reduce"])
     lineplot(cn)

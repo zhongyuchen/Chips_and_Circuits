@@ -345,7 +345,7 @@ class chip:
 
     def save(self, filename):
         filename = RESULTS_PATH + filename
-        dic = {"grid": self.grid.tolist(),
+        dic = {"grid": self.grid,
                "gate": self.gate,
                "net": self.net,
                "wire": self.wire,
