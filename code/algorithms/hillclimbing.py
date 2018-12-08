@@ -212,8 +212,3 @@ if __name__ == "__main__":
     cn.append([hc_random_wires(chip2, steps, 3), "hc_random_wires"])
     cn.append([hc_random_wires_reduce(chip3, steps, 3), "hc_random_wires_reduce"])
     lineplot(cn)
-
-    # randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
-    # put back in different orders
-    # ppa
-    # hillclimbing for a solution
