@@ -340,7 +340,8 @@ class chip:
     def cost(self):
         sum = 0
         for wire in self.map_line:
-            sum += len(wire) - 1
+            if len(wire):
+                sum += len(wire) - 1
         return sum
 
     def save(self, filename):
