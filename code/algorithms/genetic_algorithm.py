@@ -18,7 +18,7 @@ import operator
 
 POOL_SIZE = 5000
 PARENT_SIZE = 50  # this must be even number
-GENERATION_SIZE = 10
+GENERATION_SIZE = 30
 GA_PATH = "../../results/GApool"
 
 chipsize = readjson("gridsizes.json", 1)
@@ -71,6 +71,7 @@ def cycle_crossover(parent_generation, father, mother, cnt, round_number):
 
     child_list = [[] for i in range(list_len)]
 
+    # round 1
     for t in range(round_number):
         for i in range(list_len):
             if visit[i] == 1:
@@ -80,14 +81,15 @@ def cycle_crossover(parent_generation, father, mother, cnt, round_number):
             pos = i
             visit[i] = 1
             child_list[i] = father_list[i]
-
-            while operator.eq(mother_list[pos], temp) == False:
+            # find one crossover
+            while not operator.eq(mother_list[pos], temp):
                 for j in range(list_len):
                     if operator.eq(father_list[j], mother_list[pos]):
                         pos = j
                         visit[pos] = 1
                         child_list[pos] = father_list[pos]
                         break
+            break
 
     for j in range(list_len):
         if len(child_list[j]):
@@ -105,6 +107,7 @@ def cycle_crossover(parent_generation, father, mother, cnt, round_number):
         child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
         cnt = cnt + 1
 
+    # round 2
     # swap father_list and mother_list
     father_list = chip_mother.net
     mother_list = chip_father.net
@@ -123,14 +126,15 @@ def cycle_crossover(parent_generation, father, mother, cnt, round_number):
             pos = i
             visit[i] = 1
             child_list[i] = father_list[i]
-
-            while mother_list[pos] != temp:
+            # find one crossover
+            while not operator.eq(mother_list[pos], temp):
                 for j in range(list_len):
                     if father_list[j] == mother_list[pos]:
                         pos = j
                         visit[pos] = 1
                         child_list[pos] = father_list[pos]
                         break
+            break
 
     for j in range(list_len):
         if len(child_list[j]):
@@ -169,11 +173,11 @@ def work_each_generation(parent_generation, index_parent):
     for i in range(PARENT_SIZE):
         print(i, cnt)
         if (i & 1) == 0:
-            cnt = cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt, 3)
+            cnt = cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt, random.randint(2, 5))
 
 
 def genetic_algorithm_main():
-    for generation in range(1, GENERATION_SIZE + 1):
+    for generation in range(26, GENERATION_SIZE + 1):
 
         parent_generation = generation - 1
 
