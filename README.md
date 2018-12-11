@@ -23,6 +23,10 @@
  - ppa
  - hillclimbing for a solution
  
+ - argparse
+ - choose netlist, algorithms, no need for other variables
+ - gitignore the .json results
+ 
 presentation
  - introduction: make sure everyone understand your case, constrain 
  - states base, bound, 

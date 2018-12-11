@@ -4,6 +4,7 @@ import sys
 sys.path.append('../')
 from classes.chip import chip
 
+
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
 

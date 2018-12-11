@@ -57,6 +57,26 @@ class chip:
         # list of the gates' coordinates
         self.gate = gatelist
 
+    def clean(self):
+        # erase everything except size, gates and netlist(the same order)
+        self.wire = []
+
+        self.grid = np.zeros([self.size[0], self.size[1], self.size[2]])
+
+        self.used_wired = [[[-1 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+
+        self.map_line = [[] for i in range(len(self.net))]
+
+        self.grid_value = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+
+        for gate in self.gate:
+            self.grid[0][gate[0]][gate[1]] = -1
+
+        for i in range(self.size[0]):
+            for j in range(self.size[1]):
+                for k in range(self.size[2]):
+                    self.grid_value[i][j][k] = self.calc_grid_cost(j, k, i)
+
     def manhattan_distance_weight(self):
         def mapping(distance):
             return - distance + 50

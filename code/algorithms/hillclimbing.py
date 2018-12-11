@@ -1,15 +1,9 @@
 from readjson import readjson, loadchip
 import sys
 sys.path.append('../')
-from classes.chip import chip
 import random
-import plotly
-import plotly.plotly as py
-import plotly.graph_objs as go
 import copy
-
-
-plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
+from lineplot import lineplot
 
 
 def longest_wire(chip):
@@ -158,36 +152,6 @@ def hc_random_wires(chip, steps=1000, amount=1, retry=1, function="", filename="
     return costs
 
 
-def lineplot(costs_names, filename=""):
-    costs_list = []
-    name_list = []
-    for cost_name in costs_names:
-        costs_list.append(cost_name[0])
-        name_list.append(cost_name[1])
-
-    # draw line plot
-    data = []
-    for i, costs in enumerate(costs_list):
-        trace = go.Scatter(
-            x=list(range(len(costs))),
-            y=costs,
-            mode='lines',
-            name=name_list[i]
-        )
-        data.append(trace)
-
-    layout = dict(
-        title="hillclimbing costs",
-        xaxis=dict(title='step'),
-        yaxis=dict(title='cost')
-    )
-
-    if filename == "":
-        filename = "hillclimbing costs"
-    fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=filename)
-
-
 if __name__ == "__main__":
     size1 = readjson("gridsizes.json", 1)
     gate1 = readjson("gatelists.json", 1)
@@ -195,14 +159,14 @@ if __name__ == "__main__":
 
     steps = 1000
 
-    chip0 = loadchip("hillclimbing/hc-2-001-0455.json")
-    # chip1 = copy.deepcopy(chip0)
-    # chip2 = copy.deepcopy(chip0)
+    chip0 = loadchip("hillclimbing/hc-2-000-0523.json")
+    chip1 = copy.deepcopy(chip0)
+    chip2 = copy.deepcopy(chip0)
     chip3 = copy.deepcopy(chip0)
 
     cn = []
-    # cn.append([hc_longest_wire(chip0, steps), "hc_longest_wire"])
-    # cn.append([hc_random_wire(chip1, steps), "hc_random_wire"])
-    # cn.append([hc_random_wires(chip2, steps=steps, amount=6, retry=30), "hc_random_wires"])
+    cn.append([hc_longest_wire(chip0, steps), "hc_longest_wire"])
+    cn.append([hc_random_wire(chip1, steps), "hc_random_wire"])
+    cn.append([hc_random_wires(chip2, steps=steps, amount=6, retry=30), "hc_random_wires"])
     cn.append([hc_random_wires(chip3, steps=steps, amount=6, retry=30, function="reduce", filename="hillclimbing/hc-2-002-"), "hc_random_wires_reduce"])
-    lineplot(cn)
+    lineplot(cn, "hill climbing for better solution")
