@@ -21,11 +21,9 @@
  
  - randomly take one wire, try to connect the shortest option and pierce through all (some?) the other wires
  - ppa
- - hillclimbing for a solution
  
  - argparse
  - choose netlist, algorithms, no need for other variables
- - gitignore the .json results
  
 presentation
  - introduction: make sure everyone understand your case, constrain 
