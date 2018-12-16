@@ -30,7 +30,7 @@ def addline_spfa(chip, net_num):
     st = chip.net[net_num][0]
     en = chip.net[net_num][1]
 
-    max_dis = 10000
+    max_dis = 1000000
 
     queue = []
     # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point

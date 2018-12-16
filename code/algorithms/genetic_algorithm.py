@@ -57,15 +57,7 @@ def load_pool(gene):
     return index_parent
 
 
-def cycle_crossover(parent_generation, father, mother, cnt, round_number):
-    dict_parent = 'GApool/generation' + str(parent_generation) + '/'
-    dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
-    chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
-    chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
-
-    father_list = chip_father.net
-    mother_list = chip_mother.net
-
+def produce_child(dict_child, father_list, mother_list, round_number, cnt):
     list_len = len(father_list)
     visit = [0 for i in range(list_len)]
 
@@ -107,50 +99,19 @@ def cycle_crossover(parent_generation, father, mother, cnt, round_number):
         child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
         cnt = cnt + 1
 
-    # round 2
+    return cnt
+
+
+def cycle_crossover(parent_generation, father, mother, cnt, round_number):
+    dict_parent = 'GApool/generation' + str(parent_generation) + '/'
+    dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
+    chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
+    chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
+
+    cnt = produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
+
     # swap father_list and mother_list
-    father_list = chip_mother.net
-    mother_list = chip_father.net
-
-    list_len = len(father_list)
-    visit = [0 for i in range(list_len)]
-
-    child_list = [[] for i in range(list_len)]
-
-    for t in range(round_number):
-        for i in range(list_len):
-            if visit[i] == 1:
-                continue
-
-            temp = father_list[i]
-            pos = i
-            visit[i] = 1
-            child_list[i] = father_list[i]
-            # find one crossover
-            while not operator.eq(mother_list[pos], temp):
-                for j in range(list_len):
-                    if father_list[j] == mother_list[pos]:
-                        pos = j
-                        visit[pos] = 1
-                        child_list[pos] = father_list[pos]
-                        break
-            break
-
-    for j in range(list_len):
-        if len(child_list[j]):
-            pass
-        else:
-            child_list[j] = mother_list[j]
-
-    if operator.eq(child_list, mother_list) or operator.eq(child_list, father_list):
-        pass
-    else:
-        # save child_list in child_chip.net
-        child_chip = chip(chipsize, chipgate, chipnetlist)
-        child_chip.net = child_list
-        ans = astar_spfa(child_chip)
-        child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
-        cnt = cnt + 1
+    cnt = produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
 
     return cnt
 
@@ -177,7 +138,7 @@ def work_each_generation(parent_generation, index_parent):
 
 
 def genetic_algorithm_main():
-    for generation in range(26, GENERATION_SIZE + 1):
+    for generation in range(1, GENERATION_SIZE + 1):
 
         parent_generation = generation - 1
 
@@ -198,5 +159,3 @@ if __name__ == '__main__':
     # create_pool()
 
     genetic_algorithm_main()  # fitness proportionate selection
-
-    chip_test.grid.tolist()
