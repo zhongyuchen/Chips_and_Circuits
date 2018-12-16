@@ -30,13 +30,13 @@ class chip:
 
     def __init__(self, size, gatelist, netlist):
         # line number
-        # self.cnt_wire = 0
         self.wire = []
         # 3D grid -> -1: gate, 0: available, > 0: wire number
 
         self.net = netlist
 
         self.grid = np.zeros([size[0], size[1], size[2]])
+
         self.size = size
         # size[0] shows level, size[1] shows row, size[2] shows column
 
