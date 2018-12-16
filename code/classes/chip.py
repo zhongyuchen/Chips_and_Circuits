@@ -1,4 +1,3 @@
-import numpy as np
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
@@ -61,7 +60,7 @@ class chip:
         # erase everything except size, gates and netlist(the same order)
         self.wire = []
 
-        self.grid = np.zeros([self.size[0], self.size[1], self.size[2]])
+        self.grid = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
 
         self.used_wired = [[[-1 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
 
