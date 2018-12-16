@@ -35,7 +35,7 @@ class chip:
 
         self.net = netlist
 
-        self.grid = np.zeros([size[0], size[1], size[2]])
+        self.grid = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
 
         self.size = size
         # size[0] shows level, size[1] shows row, size[2] shows column
