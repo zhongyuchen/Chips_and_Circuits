@@ -196,4 +196,7 @@ def genetic_algorithm_main():
 
 if __name__ == '__main__':
     # create_pool()
+
     genetic_algorithm_main()  # fitness proportionate selection
+
+    chip_test.grid.tolist()
