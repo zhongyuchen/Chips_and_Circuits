@@ -169,4 +169,4 @@ if __name__ == "__main__":
     cn.append([hc_random_wire(chip1, steps), "hc_random_wire"])
     cn.append([hc_random_wires(chip2, steps=steps, amount=6, retry=30), "hc_random_wires"])
     cn.append([hc_random_wires(chip3, steps=steps, amount=6, retry=30, function="reduce", filename="hillclimbing/hc-2-002-"), "hc_random_wires_reduce"])
-    lineplot(cn, "hill climbing for better solution")
+    lineplot(cn, "hill climbing comparison")
