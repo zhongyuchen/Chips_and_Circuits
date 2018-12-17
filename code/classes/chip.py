@@ -34,56 +34,48 @@ class chip:
 
         self.net = netlist
 
-        self.grid = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.grid = [[[0 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
         self.size = size
         # size[0] shows level, size[1] shows row, size[2] shows column
 
-        self.used_wired = [[[-1 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.used_wired = [[[-1 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
-        self.map_line = [[] for i in range(len(self.net))]
-
-        self.grid_value = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.map_line = [[] for _ in range(len(self.net))]
 
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
 
-        for i in range(self.size[0]):
-            for j in range(self.size[1]):
-                for k in range(self.size[2]):
-                    self.grid_value[i][j][k] = self.calc_grid_cost(j, k, i)
-
         # list of the gates' coordinates
         self.gate = gatelist
+
+        self.manhattan_distance_weight()
 
     def clean(self):
         # erase everything except size, gates and netlist(the same order)
         self.wire = []
 
-        self.grid = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.grid = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
-        self.used_wired = [[[-1 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.used_wired = [[[-1 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
-        self.map_line = [[] for i in range(len(self.net))]
-
-        self.grid_value = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.map_line = [[] for _ in range(len(self.net))]
 
         for gate in self.gate:
             self.grid[0][gate[0]][gate[1]] = -1
 
-        for i in range(self.size[0]):
-            for j in range(self.size[1]):
-                for k in range(self.size[2]):
-                    self.grid_value[i][j][k] = self.calc_grid_cost(j, k, i)
+        self.manhattan_distance_weight()
 
     def manhattan_distance_weight(self):
+        # calculate the value of each grid.
+
         def mapping(distance):
             return - distance + 50
 
         def manhattan_distance(point, gate):
             return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
 
-        self.grid_value = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
@@ -188,50 +180,6 @@ class chip:
             return c
         else:
             return 0
-
-    def calc_grid_cost(self, x, y, z):
-        ret = 1
-        if z != 0:
-            return ret
-
-        # calc the 4 cost positions
-        for i in range(4):
-            tx = x + four_direction[i][0]
-            ty = y + four_direction[i][1]
-            ret = ret + self.calc_single_cost_impact(tx, ty, 4)
-
-        # calc the 2 cost positions
-        for i in range(4):
-            tx = x + diagonal_four_direction[i][0]
-            ty = y + diagonal_four_direction[i][1]
-            ret = ret + self.calc_single_cost_impact(tx, ty, 2)
-
-        # calc the 1 cost postisions
-        for i in range(16):
-            tx = x + enclosure_level_2[i][0]
-            ty = y + enclosure_level_2[i][1]
-            ret = ret + self.calc_single_cost_impact(tx, ty, 1)
-
-        return ret
-
-    def output_map(self, f):
-        # for debug
-        for i in range(2):
-            print("nn", file=f, end=" ")
-            for k in range(self.size[2]):
-                print("%02d" % k, file=f, end=" ")
-            print(file=f)
-
-            for j in range(self.size[1]):
-                print("%02d" % j, file=f, end=" ")
-                for k in range(self.size[2]):
-                    if self.used_wired[i][j][k] >= 0:
-                        print("%02d" % self.used_wired[i][j][k], file=f, end=" ")
-                    else:
-                        print(self.used_wired[i][j][k], file=f, end=" ")
-                print(file=f)
-
-            print(file=f)
 
     def output_line(self):
         # get the ordered coordinates of all the wires
