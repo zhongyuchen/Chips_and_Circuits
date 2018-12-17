@@ -1,4 +1,4 @@
-# from algorithms.astar_spfa import AstarSpfa
+from algorithms.astar_spfa import AstarSpfa
 
 import sys
 sys.path.append('../')
@@ -23,8 +23,8 @@ def argparser():
 
     print(env.chipsize)
 
-    # test = AstarSpfa(env)
-    # test.run()  # hc.random_seminar_swap_hill_climber(1000)
+    test = AstarSpfa(env)
+    test.run()  # hc.random_seminar_swap_hill_climber(1000)
 
     # algos = {"hillclimber": algorithms.Hillclimber(env).run,
     #         "annealing": algorithms.Annealing(main_timetable).run,
