@@ -1,4 +1,4 @@
-# from algorithms.astar_spfa import AstarSpfa
+from algorithms.astar_spfa import AstarSpfa
 
 import sys
 sys.path.append('../')
@@ -7,7 +7,7 @@ from classes.environment import Environment
 
 def argparser():
     parser = argparse.ArgumentParser(description='Chips and Circuits')
-    parser.print_help()
+
 
     parser.add_argument('--netlist', default=1, type=int,
                         choices=[1, 2, 3, 4, 5, 6],
@@ -30,3 +30,5 @@ def argparser():
     #         "annealing": algorithms.Annealing(main_timetable).run,
     #         "greedy": algorithms.Hillclimber(main_timetable).worst_to_best,
     #         "genetic": algorithms.Genetic(generations, size).run}
+
+    parser.print_help()

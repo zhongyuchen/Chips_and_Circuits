@@ -1,6 +1,6 @@
 import json
 
-DATA_PATH = "../../data/"
+DATA_PATH = "../data/"
 RESULTS_PATH = "../../results/"
 
 

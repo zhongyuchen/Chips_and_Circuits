@@ -124,7 +124,9 @@ def hc_solution(chip, steps=1000, amount=2, retry=1, filename="hc-"):
     filename += f"{connected}.json"
     chip.save(filename)
 
-    print(f"All done! {len(connected_list) - 1} steps, {connected}/{len(chip.net)} connected, {success_num}/{len(connected_list) - 1} success.")
+    print(f"All done! {len(connected_list) - 1} steps, "
+          f"{connected}/{len(chip.net)} connected, "
+          f"{success_num}/{len(connected_list) - 1} success.")
     return connected_list
 
 
