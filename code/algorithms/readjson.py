@@ -23,7 +23,7 @@ def loadchip(filename):
     filename = RESULTS_PATH + filename
     with open(filename, 'r') as f:
         dic = json.load(f)
-    c = chip(dic["size"], dic["gate"], dic["net"])
+    c = Chip(dic["size"], dic["gate"], dic["net"])
     c.grid = dic["grid"]
     c.wire = dic["wire"]
     c.used_wired = dic["used_wired"]
