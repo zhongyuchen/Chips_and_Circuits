@@ -2,6 +2,7 @@ import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 import json
+import random
 
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
@@ -357,3 +358,21 @@ class Chip:
         self.used_wired = dic["used_wired"]
         self.map_line = dic["map_line"]
         self.grid_value = dic["grid_value"]
+
+    def longest_wire(self):
+        # get the number of the (first) longest wire
+        wire_num = 0
+        max_length = 0
+        for i, wire in enumerate(self.map_line):
+            if len(wire) > max_length:
+                wire_num = i
+                max_length = len(wire)
+        return wire_num
+
+    def random_wires(self, amount):
+        # randomly select a certain amount of wires
+        length = len(self.net)
+        wires = []
+        for i in range(amount):
+            wires.append(random.randint(0, length - 1))
+        return wires

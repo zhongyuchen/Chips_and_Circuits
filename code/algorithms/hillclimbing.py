@@ -9,24 +9,24 @@ from classes.chip import Chip
 
 class Hillclimber():
 
-    def __init__(self):
-        chip = Chip()
+    def __init__(self, size, gatelist, netlist, steps=500):
+        self.chip = Chip(size, gatelist, netlist)
+        self.steps = steps
 
-
-    def hillclimbing(chip, steps=1000, amount=1, retry=1, get_wires_function=random_wires, filename="hc-"):
+    def hillclimbing(self, steps=1000, amount=1, retry=1, get_wires_function=random_wires, filename="hc-"):
         print("Starting to climb a hill...")
-        print(f"Start with a cost of {chip.cost()}...")
-        costs = [chip.cost()]
+        print(f"Start with a cost of {self.chip.cost()}...")
+        costs = [self.chip.cost()]
         fail_num = copy.deepcopy(steps)
-        chip_best = copy.deepcopy(chip)
+        chip_best = copy.deepcopy(self.chip)
 
         for i in range(steps):
             # get wire num function
-            wire_num = get_wires_function(chip, amount)
+            wire_num = get_wires_function(self.chip, amount)
 
             # climb
             print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-            chip_temp = copy.deepcopy(chip)
+            chip_temp = copy.deepcopy(self.chip)
 
             # delete the selected wires
             for w in wire_num:
@@ -46,17 +46,17 @@ class Hillclimber():
                         break
 
                 # success
-                if fail != -1 and chip_temp_temp.cost() < chip.cost():
-                    chip = chip_temp_temp
+                if fail != -1 and chip_temp_temp.cost() < self.chip.cost():
+                    self.chip = chip_temp_temp
                     fail_num -= 1
                     print(f"success", end=" ")
                     break
 
-            if chip.cost() < chip_best.cost():
-                chip_best = chip
+            if self.chip.cost() < chip_best.cost():
+                chip_best = self.chip
 
-            print(f"cost {chip.cost()}")
-            costs.append(chip.cost())
+            print(f"cost {self.chip.cost()}")
+            costs.append(self.chip.cost())
 
         # save the best!
         filename += "%04d.json" % chip_best.cost()
@@ -65,15 +65,7 @@ class Hillclimber():
         print(f"All done! {steps} steps and {fail_num} fails")
         return costs
 
-def longest_wire(chip):
-    # get the number of the (first) longest wire
-    wire_num = 0
-    max_length = 0
-    for i, wire in enumerate(chip.map_line):
-        if len(wire) > max_length:
-            wire_num = i
-            max_length = len(wire)
-    return wire_num
+
 
 
 def hc_longest_wire(chip, steps, fun=longest_wire):
@@ -100,13 +92,7 @@ def hc_longest_wire(chip, steps, fun=longest_wire):
     return costs
 
 
-def random_wires(chip, amount):
-    # randomly select a certain amount of wires
-    length = len(chip.net)
-    wires = []
-    for i in range(amount):
-        wires.append(random.randint(0, length - 1))
-    return wires
+
 
 
 def hc_random_wires(chip, steps=1000, amount=1, retry=1, get_wires_function=random_wires, filename="hc-"):
