@@ -26,6 +26,7 @@ class HillClimber:
         self.env = environment
         self.amount = 6
         self.retry = 30
+        self.astarspfa = AstarSpfa(self.env)
 
     def hillclimbing(self, random_walk=False):
         print("Starting to climb a hill...")
@@ -92,13 +93,7 @@ class HillClimber:
     def randomwalk(self):
         return self.hillclimbing(random_walk=True)
 
-    def find_solution(self, chip_input, valid=False):
-        # wrapper of the function that finds a solution
-        # different function lead to different solution, even with the same sequence
-        astarspfa = AstarSpfa(self.env)
-        return astarspfa.wrapper(chip_input)
-
-    def hillclimbing_solution(self, env):
+    def hillclimbing_solution(self):
         # hill climbing for finding a solution
         print("Starting climbing for a solution...")
         success_num = 0
