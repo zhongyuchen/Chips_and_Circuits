@@ -7,6 +7,9 @@ from classes.chip import Chip
 
 four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
 
+chipsize = readjson("gridsizes.json", 1)
+chipgate = readjson("gatelists.json", 1)
+chipnetlist = readjson("netlists.json", 1)
 
 class AstarSpfa:
     """
@@ -14,11 +17,11 @@ class AstarSpfa:
     """
 
     def __init__(self):
-        chip = Chip()
+        chip = Chip(chipsize, chipgate, chipnetlist)
 
     def check_node_spfa(self, u, v, queue, left, dis, visit, en):
         if self.chip.used_wired[v[0]][v[1]][v[2]] == -1 and (
-                    (v[0] == 0 and v[1] == self.chip.gate[en][0] and v[2] == self.chip.gate[en][1]) or  # the ending gate
+                    (v[0] == 0 and v[1] == self.chip.gate[en][0] and v[2] == self.chip.gate[en][1]) or
                     (self.chip.grid[v[0]][v[1]][v[2]] != -1)  # not a gate
                 ):
             if dis[u[0]][u[1]][u[2]] + self.chip.grid_value[v[0]][v[1]][v[2]] < dis[v[0]][v[1]][v[2]]:
@@ -210,11 +213,9 @@ if __name__ == "__main__":
     #
     # chip_test.plot("2-4 for pre test")
 
-    size1 = readjson("gridsizes.json", 1)
-    gate1 = readjson("gatelists.json", 1)
-    netlist1 = readjson("netlists.json", 1)
-    chip_test = Chip(size1, gate1, netlist1)
+    chip_test = Chip(chipsize, chipgate, chipnetlist)
     random.shuffle(chip_test.net)
     temp = AstarSpfa()
     ans = temp.run(chip_test)
     print(ans)
+

@@ -4,6 +4,10 @@ import plotly.graph_objs as go
 import json
 import random
 
+import sys
+sys.path.append('../')
+from algorithms.astar_spfa import AstarSpfa
+
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
 
