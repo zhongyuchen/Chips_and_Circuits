@@ -27,7 +27,7 @@ class GeneticAlgorithm:
         self.GENERATION_SIZE = 30
         self.GA_PATH = "../../results/GApool"
 
-    def create_pool(self, ):
+    def create_pool(self):
         """
             If the default pool of generation does not exist, produce the pool.
             For per 1000 elements, it will take 20 minutes to generate.

@@ -1,5 +1,6 @@
+import sys
+sys.path.append('../')
 from algorithms.readjson import readjson
-
 
 class Environment:
     def __init__(self, number_netlist=1):

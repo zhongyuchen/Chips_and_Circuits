@@ -3,6 +3,7 @@ import json
 DATA_PATH = "../../data/"
 RESULTS_PATH = "../../results/"
 
+
 def readjson(filename, number=-1):
     filename = DATA_PATH + filename
     with open(filename, "r") as file:
@@ -12,6 +13,7 @@ def readjson(filename, number=-1):
             return dict[key]
         else:
             return dict
+
 
 def loadchip(filename):
     import sys

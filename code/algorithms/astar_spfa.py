@@ -1,13 +1,13 @@
 import random
-from readjson import readjson
+# from readjson import readjson
 import sys
 sys.path.append('../')
 from classes.chip import Chip
 from classes.environment import Environment
 
-chipsize = readjson("gridsizes.json", 1)
-chipgate = readjson("gatelists.json", 1)
-chipnetlist = readjson("netlists.json", 1)
+# chipsize = readjson("gridsizes.json", 1)
+# chipgate = readjson("gatelists.json", 1)
+# chipnetlist = readjson("netlists.json", 1)
 
 
 class AstarSpfa:
@@ -18,9 +18,9 @@ class AstarSpfa:
             just sets the variable 'use_spfa' as 0.
     """
 
-    def __init__(self):
-        self.chip = Chip(chipsize, chipgate, chipnetlist)
-        self.env = Environment()
+    def __init__(self, environment):
+        self.env = environment
+        self.chip = Chip(self.env)
 
     def astar_spfa(self):
         cnt = 0
@@ -82,8 +82,8 @@ class AstarSpfa:
 
         return cnt
 
-    def run(self, chip_input, use_spfa=1):
-        self.chip = chip_input
+    def run(self, use_spfa=1):
+        random.shuffle(self.chip.net)
 
         if not use_spfa:
             # Change the situation to the more simple algorithm - Breadth-First-Search.
@@ -100,11 +100,10 @@ class AstarSpfa:
 
 if __name__ == "__main__":
 
-    ans = 0
-    while ans != 30:
-        chip_test = Chip(chipsize, chipgate, chipnetlist)
-        random.shuffle(chip_test.net)
-        temp = AstarSpfa()
-        ans = temp.run(chip_test)
-        print(ans)
+    env = Environment(5)
+    temp = AstarSpfa(env)
+    ans = temp.run()
+    print(ans)
+    temp.chip.plot("test for env")
+
 

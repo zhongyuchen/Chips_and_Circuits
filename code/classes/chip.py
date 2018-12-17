@@ -11,15 +11,17 @@ RESULTS_PATH = "../../results/"
 
 
 class Chip:
-    def __init__(self, size, gatelist, netlist):
+    def __init__(self, environment):
+
+        self.env = environment
 
         # Line list.
         self.wire = []
 
-        self.net = netlist
+        self.net = self.env.chipnetlist
 
         # Size[0] shows level, size[1] shows row, size[2] shows column.
-        self.size = size
+        self.size = self.env.chipsize
 
         # Grid -> -1: gate, 0: available, > 0: wire number.
         self.grid = self.memset_list(0)
@@ -28,17 +30,15 @@ class Chip:
 
         self.map_line = [[] for _ in range(len(self.net))]
 
-        for gate in gatelist:
+        for gate in self.env.chipgate:
             self.grid[0][gate[0]][gate[1]] = -1
 
         # List of the gates' coordinates.
-        self.gate = gatelist
+        self.gate = self.env.chipgate
 
         # Use manhattan_distance to determine the grid_value.
         self.grid_value = self.memset_list(0)
         self.manhattan_distance_weight()
-
-        self.env = Environment()
 
     def clean(self):
         # Erase everything except size, gates and netlist(the same order)
