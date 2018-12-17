@@ -4,10 +4,6 @@ import plotly.graph_objs as go
 import json
 import random
 
-import sys
-sys.path.append('../')
-from algorithms.astar_spfa import AstarSpfa
-
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
 
@@ -22,7 +18,6 @@ enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
 
 
 class Chip:
-
     def __init__(self, size, gatelist, netlist):
 
         # Line list.
@@ -68,6 +63,9 @@ class Chip:
 
         self.manhattan_distance_weight()
 
+    def memset_list(self, value):
+        return [[[value for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+
     def manhattan_distance_weight(self):
         # Calculate the value of each grid.
 
@@ -77,6 +75,7 @@ class Chip:
         def manhattan_distance(point, gate):
             return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
 
+        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
         for i in range(self.size[0]):
             for j in range(self.size[1]):
                 for k in range(self.size[2]):
@@ -181,6 +180,44 @@ class Chip:
         else:
             return 0
 
+    def find_path(self, u, queue, net_num, st):
+        """
+            Once the algorithm reach the destination from the starting point, trace the track.
+            Return the total cost of this path.
+        """
+
+        current_cost = 0
+
+        tmp = u[3]
+        self.map_line[net_num].append([u[0], u[1], u[2]])  # Add the destination.
+
+        while tmp != -1:
+            if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
+                self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = net_num
+                self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
+
+            current_cost = current_cost + 1
+            tmp = queue[tmp][3]
+
+        self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])  # Add the starting point.
+
+        return current_cost
+
+    def check_node_spfa(self, u, v, queue, left, dis, visit, en):
+        if self.used_wired[v[0]][v[1]][v[2]] == -1 and (
+                    (v[0] == 0 and v[1] == self.gate[en][0] and v[2] == self.gate[en][1]) or
+                    (self.grid[v[0]][v[1]][v[2]] != -1)  # not a gate
+                ):
+            if dis[u[0]][u[1]][u[2]] + self.grid_value[v[0]][v[1]][v[2]] < dis[v[0]][v[1]][v[2]]:
+                dis[v[0]][v[1]][v[2]] = dis[u[0]][u[1]][u[2]] + self.grid_value[v[0]][v[1]][v[2]]
+
+                if visit[v[0]][v[1]][v[2]] == 0:
+                    visit[v[0]][v[1]][v[2]] = 1
+                    queue.append([v[0], v[1], v[2], left])
+
+                    return 1
+        return 0
+
     def output_line(self):
         """
             Get the ordered coordinates of all the wires.
@@ -204,53 +241,44 @@ class Chip:
 
     def addline(self, net_num):
         """
-            Try to add a line between the pair of certain net.
-            Use the Breadth-First-Search try to find a path.
+            Add a line.
+            Use the algorithm SPFA(an improvement of Bellman-Ford).
         """
 
         st = self.net[net_num][0]
         en = self.net[net_num][1]
 
+        max_dis = 1000000
+
         queue = []
         # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
+
+        visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        dis = [[[max_dis for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+
         left = 0
         right = 1
         queue.append([0, self.gate[st][0], self.gate[st][1], -1])
-
-        visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
-
-        for i in range(self.size[0]):
-            for j in range(self.size[1]):
-                for k in range(self.size[2]):
-                    visit[i][j][k] = 0
+        dis[0][self.gate[st][0]][self.gate[st][1]] = 0
+        visit[0][self.gate[st][0]][self.gate[st][1]] = 1
 
         for i in range(len(self.gate)):
-            visit[0][self.gate[i][0]][self.gate[i][1]] = 1
             self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = -1
-        visit[0][self.gate[en][0]][self.gate[en][1]] = 0
 
         while left < right:
             u = queue[left]
-            if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
-                current_cost = 0
-                tmp = u[3]
-                self.map_line[net_num].append([u[0], u[1], u[2]])
-                while tmp != -1:
-                    if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
-                        self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = net_num
-                        self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
-                    current_cost = current_cost + 1
-                    tmp = queue[tmp][3]
-                self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])
+            v = [0 for i in range(3)]
 
-                return current_cost
+            visit[u[0]][u[1]][u[2]] = 0
+
+            # find a path
+            if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
+                return self.find_path(u, queue, net_num, st)
 
             # up level
             if u[0] < 6:
-                if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
-                    queue.append([u[0] + 1, u[1], u[2], left])
-                    visit[u[0] + 1][u[1]][u[2]] = 1
-                    right = right + 1
+                v[0], v[1], v[2] = u[0] + 1, u[1], u[2]
+                right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
 
             # 4 directions in same level
             for i in range(4):
@@ -259,20 +287,88 @@ class Chip:
                 if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                     continue
 
-                if visit[u[0]][tx][ty] == 0 and self.used_wired[u[0]][tx][ty] == -1:
-                    queue.append([u[0], tx, ty, left])
-                    visit[u[0]][tx][ty] = 1
-                    right = right + 1
+                v[0], v[1], v[2] = u[0], tx, ty
+                right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
 
             # down level
             if u[0] > 0:
-                if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == -1:
-                    queue.append([u[0] - 1, u[1], u[2], left])
-                    visit[u[0] - 1][u[1]][u[2]] = 1
-                    right = right + 1
+                v[0], v[1], v[2] = u[0] - 1, u[1], u[2]
+                right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
 
             left = left + 1
         return -1
+
+    # def addline(self, net_num):
+    #     """
+    #         Try to add a line between the pair of certain net.
+    #         Use the Breadth-First-Search try to find a path.
+    #     """
+    #
+    #     st = self.net[net_num][0]
+    #     en = self.net[net_num][1]
+    #
+    #     queue = []
+    #     # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
+    #     left = 0
+    #     right = 1
+    #     queue.append([0, self.gate[st][0], self.gate[st][1], -1])
+    #
+    #     visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+    #
+    #     for i in range(self.size[0]):
+    #         for j in range(self.size[1]):
+    #             for k in range(self.size[2]):
+    #                 visit[i][j][k] = 0
+    #
+    #     for i in range(len(self.gate)):
+    #         visit[0][self.gate[i][0]][self.gate[i][1]] = 1
+    #         self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = -1
+    #     visit[0][self.gate[en][0]][self.gate[en][1]] = 0
+    #
+    #     while left < right:
+    #         u = queue[left]
+    #         if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
+    #             current_cost = 0
+    #             tmp = u[3]
+    #             self.map_line[net_num].append([u[0], u[1], u[2]])
+    #             while tmp != -1:
+    #                 if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
+    #                     self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = net_num
+    #                     self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
+    #                 current_cost = current_cost + 1
+    #                 tmp = queue[tmp][3]
+    #             self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])
+    #
+    #             return current_cost
+    #
+    #         # up level
+    #         if u[0] < 6:
+    #             if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
+    #                 queue.append([u[0] + 1, u[1], u[2], left])
+    #                 visit[u[0] + 1][u[1]][u[2]] = 1
+    #                 right = right + 1
+    #
+    #         # 4 directions in same level
+    #         for i in range(4):
+    #             tx = u[1] + four_direction[i][0]
+    #             ty = u[2] + four_direction[i][1]
+    #             if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
+    #                 continue
+    #
+    #             if visit[u[0]][tx][ty] == 0 and self.used_wired[u[0]][tx][ty] == -1:
+    #                 queue.append([u[0], tx, ty, left])
+    #                 visit[u[0]][tx][ty] = 1
+    #                 right = right + 1
+    #
+    #         # down level
+    #         if u[0] > 0:
+    #             if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == -1:
+    #                 queue.append([u[0] - 1, u[1], u[2], left])
+    #                 visit[u[0] - 1][u[1]][u[2]] = 1
+    #                 right = right + 1
+    #
+    #         left = left + 1
+    #     return -1
 
     def delline(self, lab_number):
         """
