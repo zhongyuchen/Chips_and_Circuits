@@ -16,7 +16,7 @@ enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
                      [-2, -2], [-2, -1], [-2, 0], [-2, 1]]
 
 
-class chip:
+class Chip:
     # data structure
     grid = []
     gate = []
