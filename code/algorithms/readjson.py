@@ -1,7 +1,7 @@
 import json
 import sys
 sys.path.append('../')
-from classes.chip import chip
+from classes.chip import Chip
 
 
 DATA_PATH = "../../data/"
