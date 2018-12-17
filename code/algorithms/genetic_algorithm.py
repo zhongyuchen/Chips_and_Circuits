@@ -144,7 +144,6 @@ class GeneticAlgorithm:
         """
 
         # Copy the parent files for next generation.
-
         dict_parent = self.GA_PATH + '/generation' + str(parent_generation) + '/'
         dict_child = self.GA_PATH + '/generation' + str(parent_generation + 1) + '/'
 
@@ -168,6 +167,7 @@ class GeneticAlgorithm:
             Work iteratively through the generations.
             Each generation is separated by "---" .
         """
+
         for generation in range(1, self.GENERATION_SIZE + 1):
 
             parent_generation = generation - 1
@@ -185,8 +185,8 @@ class GeneticAlgorithm:
             print("---", generation)
 
     def pool_exist(self):
-
         # Check whether there is a such folder.
+
         dirt = self.GA_PATH + '/generation0'
         if not os.path.exists(dirt):
             return 0
@@ -209,9 +209,3 @@ class GeneticAlgorithm:
             self.create_pool()
 
         self.genetic_algorithm_main()
-
-
-if __name__ == '__main__':
-
-    GA = GeneticAlgorithm()
-    GA.run()
