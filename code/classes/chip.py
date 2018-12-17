@@ -3,7 +3,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import json
 
-plotly.tools.set_credentials_file(username='zhongyuchen', api_key='MVlLKp3ujiU1bFQImbKP')
+plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
 
 RESULTS_PATH = "../../results/"
