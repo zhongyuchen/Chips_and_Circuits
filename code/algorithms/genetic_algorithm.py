@@ -40,9 +40,9 @@ def load_pool(gene):
     # scan filename.
     index = []
     files = os.listdir(GA_PATH + '/generation' + str(gene))
-    for GAfilename in files:
-        i = int(GAfilename[6:10])
-        ans = int(GAfilename[11:13])
+    for GA_filename in files:
+        i = int(GA_filename[6:10])
+        ans = int(GA_filename[11:13])
         index.append([i, ans])
     index.sort(key=lambda index_pair: index_pair[1], reverse=True)  # sort the index by ans
 
@@ -60,7 +60,7 @@ def produce_child(dict_child, father_list, mother_list, round_number, cnt):
     child_list = [[] for _ in range(list_len)]
 
     # round 1
-    for t in range(round_number):
+    for _ in range(round_number):
         for i in range(list_len):
             if visit[i] == 1:
                 continue
@@ -129,7 +129,7 @@ def work_each_generation(parent_generation, index_parent):
     random.shuffle(index_parent)  # select proportionate randomly
     for i in range(PARENT_SIZE):
         print(i, cnt)
-        if (i & 1) == 0:
+        if not (i & 1):
             cnt = cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt, random.randint(2, 5))
 
 
@@ -155,3 +155,4 @@ if __name__ == '__main__':
     # create_pool()
 
     genetic_algorithm_main()  # fitness proportionate selection
+    isinstanceof(xxx, list True or False
