@@ -10,7 +10,7 @@ from readjson import readjson, loadchip
 import sys
 
 sys.path.append('../')
-from classes.chip import chip
+from classes.chip import Chip
 from astar_spfa import astar_spfa
 import os
 import shutil
@@ -21,10 +21,16 @@ chipgate = readjson("gatelists.json", 1)
 chipnetlist = readjson("netlists.json", 3)
 
 
-class Genetic_algorithm():
+class GeneticAlgorithm:
+    """
+        This is the class of Genetic Algorithm.
+        It helps to find better sequence of netlist of Chip.
+        It uses the crossover method to generate the children.
+    """
+
     def __init__(self):
         self.POOL_SIZE = 5000
-        self.PARENT_SIZE = 50  # this must be even number
+        self.PARENT_SIZE = 50  # This must be even number.
         self.GENERATION_SIZE = 30
         self.GA_PATH = "../../results/GApool"
 
@@ -35,7 +41,7 @@ class Genetic_algorithm():
         """
 
         for i in range(self.POOL_SIZE):
-            current_chip = chip(chipsize, chipgate, chipnetlist)
+            current_chip = Chip(chipsize, chipgate, chipnetlist)
             number_connected = astar_spfa.astar_spfa(current_chip)
             current_chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
 
@@ -48,7 +54,7 @@ class Genetic_algorithm():
             Sort the index by the number_connected and return such list.
         """
 
-        # scan filename.
+        # Scan filename.
         index = []
         files = os.listdir(self.GA_PATH + '/generation' + str(gene))
         for GA_filename in files:
@@ -56,7 +62,7 @@ class Genetic_algorithm():
             number_connected = int(GA_filename[11:13])
             index.append([i, number_connected])
 
-        # sort the index by number_connected
+        # Sort the index by number_connected.
         index.sort(key=lambda index_pair: index_pair[1], reverse=True)
 
         index_parent = []
@@ -66,12 +72,18 @@ class Genetic_algorithm():
         return index_parent
 
     def produce_child(self, dict_child, father_list, mother_list, round_number, cnt):
+        """
+            It uses the father_list and mother_list to generate child_list.
+            For the method of crossover, it fetches some(determined by round_number) cycles from father_list,
+                while the rest positions are just copy from mother_list.
+            Once it generates a new child, it responses the increasing of variable 'cnt'.
+        """
+
         list_len = len(father_list)
-        visit = [0 for _ in range(list_len)]
+        visit = [0 for _ in range(list_len)]  # Mark whether the position has been detected by a cycle.
 
-        child_list = [[] for _ in range(list_len)]
+        child_list = [[] for _ in range(list_len)]  # The sequence of children generation.
 
-        # round 1
         for _ in range(round_number):
             for i in range(list_len):
                 if visit[i] == 1:
@@ -82,7 +94,7 @@ class Genetic_algorithm():
                 visit[i] = 1
                 child_list[i] = father_list[i]
 
-                # find one crossover
+                # Find one crossover
                 while not operator.eq(mother_list[pos], temp):
                     for j in range(list_len):
                         if operator.eq(father_list[j], mother_list[pos]):
@@ -97,8 +109,8 @@ class Genetic_algorithm():
                 child_list[j] = mother_list[j]
 
         if not (operator.eq(child_list, mother_list) or operator.eq(child_list, father_list)):
-            # save child_list in child_chip.net
-            child_chip = chip(chipsize, chipgate, chipnetlist)
+            # Save child_list in child_chip.net.
+            child_chip = Chip(chipsize, chipgate, chipnetlist)
             child_chip.net = child_list
             ans = astar_spfa(child_chip)
             child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
@@ -107,6 +119,12 @@ class Genetic_algorithm():
         return cnt
 
     def cycle_crossover(self, parent_generation, father, mother, cnt, round_number):
+        """
+            Fetch the sequence of netlist from father and mother chips.
+            Then try produce two children for each pair of parents.
+            The increasing of return value 'cnt' marks how much children it have produced in reality.
+        """
+
         dict_parent = 'GApool/generation' + str(parent_generation) + '/'
         dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
         chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
@@ -114,7 +132,7 @@ class Genetic_algorithm():
 
         cnt = self.produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
 
-        # swap father_list and mother_list
+        # Swap father_list and mother_list.
         cnt = self.produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
 
         return cnt
@@ -125,12 +143,12 @@ class Genetic_algorithm():
             Then, for each pair of parent, call crossover function to produce children.
         """
 
-        # copy the parent files for next generation
+        # Copy the parent files for next generation.
 
         dict_parent = self.GA_PATH + '/generation' + str(parent_generation) + '/'
         dict_child = self.GA_PATH + '/generation' + str(parent_generation + 1) + '/'
 
-        # cnt represents the child be produced.
+        # Variable Cnt represents the child be produced.
         cnt = 0
         for i in range(self.PARENT_SIZE):
             src_file = dict_parent + "astar-%04d-%02d.json" % (index_parent[i][0], index_parent[i][1])
@@ -138,25 +156,28 @@ class Genetic_algorithm():
             shutil.copy(src_file, dst_file)
             cnt = cnt + 1
 
-        # work for children generation
-
-        random.shuffle(index_parent) # select proportionate randomly
+        # Work for children generation.
+        random.shuffle(index_parent)  # Select proportionate randomly.
         for i in range(self.PARENT_SIZE):
-            if not (i & 1):  # for each pair, work once
+            if not (i & 1):  # For each pair, work once.
                 cnt = self.cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt,
                                            random.randint(2, 5))
 
     def genetic_algorithm_main(self):
+        """
+            Work iteratively through the generations.
+            Each generation is separated by "---" .
+        """
         for generation in range(1, self.GENERATION_SIZE + 1):
 
             parent_generation = generation - 1
 
-            # save each generation data in different dict
+            # Save each generation data in different dict.
             dirt = self.GA_PATH + '/generation' + str(generation)
             if not os.path.exists(dirt):
                 os.mkdir(dirt)
 
-            # load parent for each parent generation
+            # Load parent for each parent generation.
             index_parent = self.load_pool(parent_generation)
 
             self.work_each_generation(parent_generation, index_parent)
@@ -165,12 +186,12 @@ class Genetic_algorithm():
 
     def pool_exist(self):
 
-        # Check whether there is a such folder
+        # Check whether there is a such folder.
         dirt = self.GA_PATH + '/generation0'
         if not os.path.exists(dirt):
             return 0
 
-        # Check whether the pool contains enough elements
+        # Check whether the pool contains enough elements.
         index = self.load_pool(0)
         if len(index) < self.PARENT_SIZE:
             return 0
@@ -192,5 +213,5 @@ class Genetic_algorithm():
 
 if __name__ == '__main__':
 
-    GA = Genetic_algorithm()
+    GA = GeneticAlgorithm()
     GA.run()
