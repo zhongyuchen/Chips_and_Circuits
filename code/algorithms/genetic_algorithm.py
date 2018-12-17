@@ -81,7 +81,7 @@ def produce_child(dict_child, father_list, mother_list, round_number, cnt):
                         visit[pos] = 1
                         child_list[pos] = father_list[pos]
                         break
-            break
+            break`
 
     for j in range(list_len):
         if len(child_list[j]):

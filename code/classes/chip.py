@@ -34,14 +34,14 @@ class chip:
 
         self.net = netlist
 
-        self.grid = [[[0 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.grid = [[[0 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
         self.size = size
         # size[0] shows level, size[1] shows row, size[2] shows column
 
-        self.used_wired = [[[-1 for i in range(size[2])] for j in range(size[1])] for k in range(size[0])]
+        self.used_wired = [[[-1 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
-        self.map_line = [[] for i in range(len(self.net))]
+        self.map_line = [[] for _ in range(len(self.net))]
 
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
@@ -55,11 +55,11 @@ class chip:
         # erase everything except size, gates and netlist(the same order)
         self.wire = []
 
-        self.grid = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.grid = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
-        self.used_wired = [[[-1 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.used_wired = [[[-1 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
-        self.map_line = [[] for i in range(len(self.net))]
+        self.map_line = [[] for _ in range(len(self.net))]
 
         for gate in self.gate:
             self.grid[0][gate[0]][gate[1]] = -1
