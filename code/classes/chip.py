@@ -75,7 +75,7 @@ class chip:
         def manhattan_distance(point, gate):
             return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
 
-        self.grid_value = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
