@@ -17,27 +17,19 @@ enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
 
 
 class Chip:
-    # data structure
-    grid = []
-    gate = []
-    net = []
-    wire = []
-    used_wired = []
-    size = []
-    grid_value = []
-    map_line = []
 
     def __init__(self, size, gatelist, netlist):
-        # line number
+
+        # Line list.
         self.wire = []
-        # 3D grid -> -1: gate, 0: available, > 0: wire number
 
         self.net = netlist
 
+        # Grid -> -1: gate, 0: available, > 0: wire number.
         self.grid = [[[0 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
+        # Size[0] shows level, size[1] shows row, size[2] shows column.
         self.size = size
-        # size[0] shows level, size[1] shows row, size[2] shows column
 
         self.used_wired = [[[-1 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
 
@@ -46,13 +38,15 @@ class Chip:
         for gate in gatelist:
             self.grid[0][gate[0]][gate[1]] = -1
 
-        # list of the gates' coordinates
+        # List of the gates' coordinates.
         self.gate = gatelist
 
+        # Use manhattan_distance to determine the grid_value.
         self.manhattan_distance_weight()
 
     def clean(self):
-        # erase everything except size, gates and netlist(the same order)
+        # Erase everything except size, gates and netlist(the same order)
+
         self.wire = []
 
         self.grid = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
@@ -64,18 +58,18 @@ class Chip:
         for gate in self.gate:
             self.grid[0][gate[0]][gate[1]] = -1
 
+        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+
         self.manhattan_distance_weight()
 
     def manhattan_distance_weight(self):
-        # calculate the value of each grid.
+        # Calculate the value of each grid.
 
         def mapping(distance):
             return - distance + 50
 
         def manhattan_distance(point, gate):
             return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
-
-        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
@@ -182,8 +176,10 @@ class Chip:
             return 0
 
     def output_line(self):
-        # get the ordered coordinates of all the wires
-        # for visualization
+        """
+            Get the ordered coordinates of all the wires.
+            For visualization.
+        """
         line_list = []
 
         for i in range(len(self.net)):
@@ -201,7 +197,10 @@ class Chip:
         return line_list
 
     def addline(self, net_num):
-        # add a line
+        """
+            Try to add a line between the pair of certain net.
+            Use the Breadth-First-Search try to find a path.
+        """
 
         st = self.net[net_num][0]
         en = self.net[net_num][1]
@@ -270,7 +269,10 @@ class Chip:
         return -1
 
     def delline(self, lab_number):
-        # delete a line
+        """
+            Delete a line of the certain pair, defined by 'lab_number'.
+            Clear all the changes of this line.
+        """
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
@@ -281,8 +283,12 @@ class Chip:
         self.map_line[lab_number] = []
 
     def del_and_add(self, delline_num, addline_num):
-        # find a solution, return 0
-        # else return 1
+        """
+            There are two different number of net('delline_num' and 'addline_num' must be different).
+            Desires to delete the 'delline_num' line, and add the 'addline_num' line.
+                After that, urges to add the 'delline_num' line, to check if the swap is effective.
+            If find an alternative solution, the return number will be 0. Other cases, return 1.
+        """
 
         if delline_num == -1:
             # do not need to delete anything
