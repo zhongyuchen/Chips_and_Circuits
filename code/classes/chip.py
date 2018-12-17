@@ -42,6 +42,7 @@ class Chip:
         self.gate = gatelist
 
         # Use manhattan_distance to determine the grid_value.
+        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
         self.manhattan_distance_weight()
 
     def clean(self):
@@ -211,7 +212,7 @@ class Chip:
         right = 1
         queue.append([0, self.gate[st][0], self.gate[st][1], -1])
 
-        visit = [[[0 for i in range(self.size[2])] for j in range(self.size[1])] for k in range(self.size[0])]
+        visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
 
         for i in range(self.size[0]):
             for j in range(self.size[1]):
@@ -291,33 +292,45 @@ class Chip:
         """
 
         if delline_num == -1:
-            # do not need to delete anything
+            # Do not need to delete anything.
             return 1
 
         self.delline(delline_num)
+
+        # The cost of each addline function presents whether it can add a line in such a chip.
         cost1 = self.addline(addline_num)
         cost2 = self.addline(delline_num)
-        if cost1 == -1 or cost2 == -1:
-            # cannot find a replaced solution
 
-            # back to last status
+        if cost1 == -1 or cost2 == -1:
+            # Cannot find an alternative solution.
+
+            # Back to last status.
             if cost1 != -1:
                 self.delline(addline_num)
             if cost2 != -1:
                 self.delline(delline_num)
             self.addline(delline_num)
+
             return 1
         else:
+            # Find an alternative solution.
             return 0
 
     def cost(self):
-        sum = 0
+        """
+            Calculate the cost of total chip.
+            Prepare for the heuristic algorithms which will somehow reduce the cost.
+        """
+
+        summary = 0
         for wire in self.map_line:
             if len(wire):
-                sum += len(wire) - 1
-        return sum
+                summary += len(wire) - 1
+        return summary
 
     def save(self, filename):
+        # Save the chip as a file.
+
         filename = RESULTS_PATH + filename
         dic = {"grid": self.grid,
                "gate": self.gate,
@@ -331,6 +344,8 @@ class Chip:
             json.dump(dic, f, indent=4)
 
     def load(self, filename):
+        # Load a chip from the file.
+
         filename = RESULTS_PATH + filename
         with open(filename, 'r') as f:
             dic = json.load(f)
