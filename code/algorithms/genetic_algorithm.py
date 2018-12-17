@@ -1,10 +1,3 @@
-# -*- coding:utf8 -*-
-# @author: Tiancheng Guo
-# @contact: skyerguo97@gmail.com
-# @file: genetic_algorithm.py
-# @time: 12/4/18
-# @description:
-
 import random
 from readjson import readjson, loadchip
 import sys

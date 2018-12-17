@@ -3,9 +3,7 @@ from readjson import readjson
 import sys
 sys.path.append('../')
 from classes.chip import Chip
-
-
-four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+from classes.environment import Environment
 
 chipsize = readjson("gridsizes.json", 1)
 chipgate = readjson("gatelists.json", 1)
@@ -21,7 +19,8 @@ class AstarSpfa:
     """
 
     def __init__(self):
-        chip = Chip(chipsize, chipgate, chipnetlist)
+        self.chip = Chip(chipsize, chipgate, chipnetlist)
+        self.env = Environment()
 
     def astar_spfa(self):
         cnt = 0
@@ -41,8 +40,8 @@ class AstarSpfa:
                     for i in range(4):
                         if flag_conflict == 0:
                             break
-                        tx = self.chip.gate[pair_gate[0]][0] + four_direction[i][0]
-                        ty = self.chip.gate[pair_gate[0]][1] + four_direction[i][1]
+                        tx = self.chip.gate[pair_gate[0]][0] + self.env.four_direction[i][0]
+                        ty = self.chip.gate[pair_gate[0]][1] + self.env.four_direction[i][1]
 
                         if tx < 0 or tx >= self.chip.size[1] or ty < 0 or ty >= self.chip.size[2]:
                             continue
@@ -61,8 +60,8 @@ class AstarSpfa:
                     for i in range(4):
                         if flag_conflict == 0:
                             break
-                        tx = self.chip.gate[pair_gate[1]][0] + four_direction[i][0]
-                        ty = self.chip.gate[pair_gate[1]][1] + four_direction[i][1]
+                        tx = self.chip.gate[pair_gate[1]][0] + self.env.four_direction[i][0]
+                        ty = self.chip.gate[pair_gate[1]][1] + self.env.four_direction[i][1]
 
                         if tx < 0 or tx >= self.chip.size[1] or ty < 0 or ty >= self.chip.size[2]:
                             continue

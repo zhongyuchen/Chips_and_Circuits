@@ -3,18 +3,11 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import json
 import random
+from classes.environment import Environment
 
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
-
 RESULTS_PATH = "../../results/"
-
-four_direction = [[1, 0], [-1, 0], [0, 1], [0, -1]]
-diagonal_four_direction = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
-enclosure_level_2 = [[-2, 2], [-1, 2], [0, 2], [1, 2],
-                     [2, 2], [2, 1], [2, 0], [2, -1],
-                     [2, -2], [1, -2], [0, -2], [-1, -2],
-                     [-2, -2], [-2, -1], [-2, 0], [-2, 1]]
 
 
 class Chip:
@@ -25,13 +18,13 @@ class Chip:
 
         self.net = netlist
 
-        # Grid -> -1: gate, 0: available, > 0: wire number.
-        self.grid = [[[0 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
-
         # Size[0] shows level, size[1] shows row, size[2] shows column.
         self.size = size
 
-        self.used_wired = [[[-1 for _ in range(size[2])] for _ in range(size[1])] for _ in range(size[0])]
+        # Grid -> -1: gate, 0: available, > 0: wire number.
+        self.grid = self.memset_list(0)
+
+        self.used_wired = self.memset_list(-1)
 
         self.map_line = [[] for _ in range(len(self.net))]
 
@@ -42,24 +35,26 @@ class Chip:
         self.gate = gatelist
 
         # Use manhattan_distance to determine the grid_value.
-        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.grid_value = self.memset_list(0)
         self.manhattan_distance_weight()
+
+        self.env = Environment()
 
     def clean(self):
         # Erase everything except size, gates and netlist(the same order)
 
         self.wire = []
 
-        self.grid = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.grid = self.memset_list(0)
 
-        self.used_wired = [[[-1 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.used_wired = self.memset_list(-1)
 
         self.map_line = [[] for _ in range(len(self.net))]
 
         for gate in self.gate:
             self.grid[0][gate[0]][gate[1]] = -1
 
-        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.grid_value = self.memset_list(0)
 
         self.manhattan_distance_weight()
 
@@ -75,7 +70,7 @@ class Chip:
         def manhattan_distance(point, gate):
             return point[0] + abs(point[1] - gate[0]) + abs(point[2] - gate[1])
 
-        self.grid_value = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        self.grid_value = self.memset_list(0)
         for i in range(self.size[0]):
             for j in range(self.size[1]):
                 for k in range(self.size[2]):
@@ -226,9 +221,7 @@ class Chip:
         line_list = []
 
         for i in range(len(self.net)):
-            line_x = []
-            line_y = []
-            line_z = []
+            line_x, line_y, line_z = [], [], []
 
             for cor in self.map_line[i]:
                 line_z.append(cor[0])
@@ -245,16 +238,15 @@ class Chip:
             Use the algorithm SPFA(an improvement of Bellman-Ford).
         """
 
-        st = self.net[net_num][0]
-        en = self.net[net_num][1]
+        st, en = self.net[net_num][0], self.net[net_num][1]
 
         max_dis = 1000000
 
         queue = []
         # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
 
-        visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
-        dis = [[[max_dis for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
+        visit = self.memset_list(0)
+        dis = self.memset_list(max_dis)
 
         left = 0
         right = 1
@@ -267,7 +259,7 @@ class Chip:
 
         while left < right:
             u = queue[left]
-            v = [0 for i in range(3)]
+            v = [0 for _ in range(3)]
 
             visit[u[0]][u[1]][u[2]] = 0
 
@@ -282,8 +274,8 @@ class Chip:
 
             # 4 directions in same level
             for i in range(4):
-                tx = u[1] + four_direction[i][0]
-                ty = u[2] + four_direction[i][1]
+                tx = u[1] + self.env.four_direction[i][0]
+                ty = u[2] + self.env.four_direction[i][1]
                 if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
                     continue
 

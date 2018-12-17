@@ -1,12 +1,7 @@
 import json
-import sys
-sys.path.append('../')
-from classes.chip import Chip
-
 
 DATA_PATH = "../../data/"
 RESULTS_PATH = "../../results/"
-
 
 def readjson(filename, number=-1):
     filename = DATA_PATH + filename
@@ -18,8 +13,11 @@ def readjson(filename, number=-1):
         else:
             return dict
 
-
 def loadchip(filename):
+    import sys
+    sys.path.append('../')
+    from classes.chip import Chip
+
     filename = RESULTS_PATH + filename
     with open(filename, 'r') as f:
         dic = json.load(f)
