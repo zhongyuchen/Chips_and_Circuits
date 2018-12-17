@@ -97,6 +97,10 @@ class AstarSpfa:
 
         return answer
 
+    def wrapper(self, chip_input):
+        self.chip = chip_input
+        return self.astar_spfa()
+
 
 if __name__ == "__main__":
 

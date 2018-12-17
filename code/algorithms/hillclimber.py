@@ -6,13 +6,14 @@ import copy
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
+from astar_spfa import AstarSpfa
 
 
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
 
 class HillClimber:
-    def __init__(self, startchip_filename="astar-2-000-0523.json", steps=500,
+    def __init__(self, environment, startchip_filename="astar-2-000-0523.json", steps=500,
                  save_chip=False, show_chip=False, show_lineplot=True,
                  chip_filename="hillclimbing_bestchip.json",
                  chip_plotname="hillclimbing_bestchip",
@@ -22,8 +23,11 @@ class HillClimber:
         self.save_chip, self.chip_filename = save_chip, chip_filename
         self.show_chip, self.chip_plotname = show_chip, chip_plotname
         self.show_lineplot, self.lineplot_filename = show_lineplot, lineplot_filename
+        self.env = environment
+        self.amount = 6
+        self.retry = 30
 
-    def hillclimbing(self, random_walk=False, amount=6, retry=30):
+    def hillclimbing(self, random_walk=False):
         print("Starting to climb a hill...")
         print(f"Start with a chip with cost of {self.chip.cost()}...")
         costs = [self.chip.cost()]
@@ -32,7 +36,7 @@ class HillClimber:
 
         for i in range(self.steps):
             # get wire num function
-            wire_num = self.chip.random_wires(amount)
+            wire_num = self.chip.random_wires(self.amount)
 
             # climb
             print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
@@ -43,7 +47,7 @@ class HillClimber:
                 chip_temp.delline(w)
 
             # re-add
-            for j in range(retry):
+            for j in range(self.retry):
                 # try another random order
                 random.shuffle(wire_num)
                 chip_temp_temp = copy.deepcopy(chip_temp)
@@ -85,8 +89,60 @@ class HillClimber:
         if self.show_lineplot:
             self.lineplot(costs)
 
-    def randomwalk(self, amount=6, retry=30):
-        return self.hillclimbing(random_walk=True, amount=amount, retry=retry)
+    def randomwalk(self):
+        return self.hillclimbing(random_walk=True)
+
+    def find_solution(self, chip_input, valid=False):
+        # wrapper of the function that finds a solution
+        # different function lead to different solution, even with the same sequence
+        astarspfa = AstarSpfa(self.env)
+        return astarspfa.wrapper(chip_input)
+
+    def hillclimbing_solution(self, env):
+        # hill climbing for finding a solution
+        print("Starting climbing for a solution...")
+        success_num = 0
+        connected = self.find_solution(self.chip)
+        connected_list = [copy.deepcopy(connected)]
+        print(f"Starting with a {connected}/{len(self.chip.net)}-connected chip...")
+
+        # climb
+        for i in range(self.steps):
+            # retry
+            print(f"Step {i},", end=" ")
+            for j in range(self.retry):
+                # new chip
+                chip_test = copy.deepcopy(self.chip)
+                chip_test.clean()
+                # shuffle
+                chip_test.shuffle_random_wires(self.amount)
+                connected_test = self.find_solution(chip_test)
+
+                if connected_test > connected:
+                    connected = copy.deepcopy(connected_test)
+                    self.chip = copy.deepcopy(chip_test)
+                    success_num += 1
+                    break
+
+            print(f"{connected}/{len(self.chip.net)}")
+            connected_list.append(copy.deepcopy(connected))
+
+            if connected == len(self.chip.net):
+                break
+
+        print(f"All done! {len(connected_list) - 1} steps, "
+              f"{connected}/{len(self.chip.net)} connected, "
+              f"{success_num}/{len(connected_list) - 1} success.")
+
+        # save the best!
+        if self.save_chip:
+            self.chip.save(self.chip_filename)
+
+        if self.show_chip:
+            self.chip.show(self.chip_plotname)
+
+        if self.show_lineplot:
+            self.lineplot(connected_list)
 
     def lineplot(self, cost):
         # draw line plot
@@ -116,3 +172,5 @@ if __name__ == "__main__":
                               lineplot_filename="hc_result")
     # hillclimber.hillclimbing()
     # hillclimber.randomwalk()
+
+    hillclimber.
