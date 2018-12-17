@@ -59,11 +59,7 @@ class AstarSpfa:
 
         return cnt
 
-    def run(self, use_spfa=1):
-        if not use_spfa:
-            # Change the situation to the more simple algorithm - Breadth-First-Search.
-            self.chip.grid_value = self.chip.memset_list(1)
-
+    def run_until_solution(self, if_plot=0):
         total_wires = len(self.chip.net)
         answer = 0
         while answer != total_wires:
@@ -73,15 +69,28 @@ class AstarSpfa:
             print("The number of connected wires / total wires =", answer, total_wires)
 
         print("find a solution")
-        self.chip.plot("any")
+
+        if if_plot:
+            self.chip.plot("test")
+
+        return answer
+
+    def run(self, use_spfa=1):
+        if not use_spfa:
+            # Change the situation to the more simple algorithm - Breadth-First-Search.
+            self.chip.grid_value = self.chip.memset_list(1)
+
+        self.run_until_solution(1)
 
         if not use_spfa:
             # Recover the grid_value to initial values.
             self.chip.manhattan_distance_weight()
-        return answer
 
-    def wrapper(self, chip_input):
+    def wrapper(self, chip_input, valid=False):
         self.chip = chip_input
-        return self.astar_spfa()
+        if valid:
+            return self.run_until_solution()
+        else:
+            return self.astar_spfa()
 
 

@@ -1,4 +1,5 @@
 from algorithms.astar_spfa import AstarSpfa
+# from algorithms.genetic_algorithm import GeneticAlgorithm
 
 import sys
 sys.path.append('../')
@@ -30,7 +31,10 @@ def argparser():
     #         "genetic": algorithms.Genetic(generations, size).run}
 
     algos = {"astar": AstarSpfa(env).run}
-    print(algos[args.algorithm]())
+    ''',
+                 "genetic": GeneticAlgorithm(env).run'''
+
+    algos[args.algorithm]()
 
     # test = AstarSpfa(env)
     # print(test.run())

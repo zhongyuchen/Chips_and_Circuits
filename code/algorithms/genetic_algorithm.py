@@ -9,9 +9,9 @@ import os
 import shutil
 import operator
 
-chipsize = readjson("gridsizes.json", 1)
-chipgate = readjson("gatelists.json", 1)
-chipnetlist = readjson("netlists.json", 3)
+# chipsize = readjson("gridsizes.json", 1)
+# chipgate = readjson("gatelists.json", 1)
+# chipnetlist = readjson("netlists.json", 3)
 
 
 class GeneticAlgorithm:
@@ -21,10 +21,11 @@ class GeneticAlgorithm:
         It uses the crossover method to generate the children.
     """
 
-    def __init__(self):
+    def __init__(self, environment):
         self.POOL_SIZE = 5000
         self.PARENT_SIZE = 50  # This must be even number.
         self.GENERATION_SIZE = 30
+        self.env = environment
         self.GA_PATH = "../../results/GApool"
 
     def create_pool(self):
@@ -34,7 +35,7 @@ class GeneticAlgorithm:
         """
 
         for i in range(self.POOL_SIZE):
-            current_chip = Chip(chipsize, chipgate, chipnetlist)
+            current_chip = Chip(self.env)
             number_connected = astar_spfa.astar_spfa(current_chip)
             current_chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
 
@@ -103,7 +104,7 @@ class GeneticAlgorithm:
 
         if not (operator.eq(child_list, mother_list) or operator.eq(child_list, father_list)):
             # Save child_list in child_chip.net.
-            child_chip = Chip(chipsize, chipgate, chipnetlist)
+            child_chip = Chip(self.env)
             child_chip.net = child_list
             ans = astar_spfa(child_chip)
             child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
