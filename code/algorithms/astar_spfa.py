@@ -201,4 +201,4 @@ if __name__ == "__main__":
         print("wires: %f" % ans, end=" ")
         print("cost: %f" % chip_test.cost())
 
-    chip_test.plot("2-4 for pre")
+    chip_test.plot("2-4 for pre test")
