@@ -60,18 +60,24 @@ class AstarSpfa:
         return cnt
 
     def run(self, use_spfa=1):
-        random.shuffle(self.chip.net)
-
         if not use_spfa:
             # Change the situation to the more simple algorithm - Breadth-First-Search.
             self.chip.grid_value = self.chip.memset_list(1)
 
-        answer = self.astar_spfa()
+        total_wires = len(self.chip.net)
+        answer = 0
+        while answer != total_wires:
+            self.chip.clean()
+            random.shuffle(self.chip.net)
+            answer = self.astar_spfa()
+            print("The number of connected wires / total wires =", answer, total_wires)
+
+        print("find a solution")
+        self.chip.plot("any")
 
         if not use_spfa:
             # Recover the grid_value to initial values.
             self.chip.manhattan_distance_weight()
-        self.chip.plot("any")
         return answer
 
 
