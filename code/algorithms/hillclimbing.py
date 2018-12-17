@@ -7,13 +7,13 @@ from lineplot import lineplot
 from classes.chip import Chip
 
 
-class Hillclimber():
+class Hillclimber:
 
     def __init__(self, size, gatelist, netlist, steps=500):
         self.chip = Chip(size, gatelist, netlist)
-        self.steps = steps
+        # self.steps = steps
 
-    def hillclimbing(self, steps=1000, amount=1, retry=1, get_wires_function=random_wires, filename="hc-"):
+    def hillclimbing(self, steps=1000, amount=1, retry=1, filename="hc-"):
         print("Starting to climb a hill...")
         print(f"Start with a cost of {self.chip.cost()}...")
         costs = [self.chip.cost()]
@@ -22,7 +22,7 @@ class Hillclimber():
 
         for i in range(steps):
             # get wire num function
-            wire_num = get_wires_function(self.chip, amount)
+            wire_num = self.chip.random_wires(amount)
 
             # climb
             print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
@@ -64,88 +64,6 @@ class Hillclimber():
 
         print(f"All done! {steps} steps and {fail_num} fails")
         return costs
-
-
-
-
-def hc_longest_wire(chip, steps, fun=longest_wire):
-    # the cost drops once for ~ 2, or doesn't drop at all
-
-    print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip.cost()}...")
-    costs = [chip.cost()]
-
-    for i in range(steps):
-        # get wire num function
-        wire_num = fun(chip)
-
-        # climb
-        print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-
-        # re-add the selected wires
-        chip.delline(wire_num)
-        chip.addline(wire_num)
-
-        print(f"cost {chip.cost()}")
-        costs.append(chip.cost())
-
-    return costs
-
-
-
-
-
-def hc_random_wires(chip, steps=1000, amount=1, retry=1, get_wires_function=random_wires, filename="hc-"):
-    print("Starting to climb a hill...")
-    print(f"Start with a cost of {chip.cost()}...")
-    costs = [chip.cost()]
-    fail_num = copy.deepcopy(steps)
-    chip_best = copy.deepcopy(chip)
-
-    for i in range(steps):
-        # get wire num function
-        wire_num = get_wires_function(chip, amount)
-
-        # climb
-        print(f"Step {i}, trying to re-add wire {wire_num}, ", end="")
-        chip_temp = copy.deepcopy(chip)
-
-        # delete the selected wires
-        for w in wire_num:
-            chip_temp.delline(w)
-
-        # re-add
-        for j in range(retry):
-            # try another random order
-            random.shuffle(wire_num)
-            chip_temp_temp = copy.deepcopy(chip_temp)
-
-            fail = 0
-            for w in wire_num:
-                fail = chip_temp_temp.addline(w)
-                if fail == -1:
-                    # fail
-                    break
-
-            # success
-            if fail != -1 and chip_temp_temp.cost() < chip.cost():
-                chip = chip_temp_temp
-                fail_num -= 1
-                print(f"success", end=" ")
-                break
-
-        if chip.cost() < chip_best.cost():
-            chip_best = chip
-
-        print(f"cost {chip.cost()}")
-        costs.append(chip.cost())
-
-    # save the best!
-    filename += "%04d.json" % chip_best.cost()
-    chip_best.save(filename)
-
-    print(f"All done! {steps} steps and {fail_num} fails")
-    return costs
 
 
 if __name__ == "__main__":
