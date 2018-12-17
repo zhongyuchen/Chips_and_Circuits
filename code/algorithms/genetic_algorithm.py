@@ -27,10 +27,6 @@ chipnetlist = readjson("netlists.json", 3)
 
 
 def create_pool():
-    total_wires = len(chipnetlist)
-    index = [[] for i in range(POOL_SIZE)]
-
-    ans = 0
     for i in range(POOL_SIZE):
         current_chip = chip(chipsize, chipgate, chipnetlist)
         ans = astar_spfa.astar_spfa(current_chip)
@@ -59,9 +55,9 @@ def load_pool(gene):
 
 def produce_child(dict_child, father_list, mother_list, round_number, cnt):
     list_len = len(father_list)
-    visit = [0 for i in range(list_len)]
+    visit = [0 for _ in range(list_len)]
 
-    child_list = [[] for i in range(list_len)]
+    child_list = [[] for _ in range(list_len)]
 
     # round 1
     for t in range(round_number):
@@ -81,7 +77,7 @@ def produce_child(dict_child, father_list, mother_list, round_number, cnt):
                         visit[pos] = 1
                         child_list[pos] = father_list[pos]
                         break
-            break`
+            break
 
     for j in range(list_len):
         if len(child_list[j]):
