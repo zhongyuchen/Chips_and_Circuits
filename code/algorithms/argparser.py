@@ -13,7 +13,7 @@ def argparser():
                         choices=[1, 2, 3, 4, 5, 6],
                         help='choose the netlist.')
 
-    parser.add_argument('--algorithms',
+    parser.add_argument('--algorithm', default="astar",
                         choices=["astar", "genetic", "hillclimbing"],
                         help='the algorithm that is used.')
 
@@ -21,14 +21,18 @@ def argparser():
 
     env = Environment(args.netlist)
 
-    print(env.chipsize)
-
-    test = AstarSpfa(env)
-    test.run()  # hc.random_seminar_swap_hill_climber(1000)
+    # test = AstarSpfa(env)
+    # print(test.run())
 
     # algos = {"hillclimber": algorithms.Hillclimber(env).run,
     #         "annealing": algorithms.Annealing(main_timetable).run,
     #         "greedy": algorithms.Hillclimber(main_timetable).worst_to_best,
     #         "genetic": algorithms.Genetic(generations, size).run}
+
+    algos = {"astar": AstarSpfa(env).run}
+    print(algos[args.algorithm]())
+
+    # test = AstarSpfa(env)
+    # print(test.run())
 
     parser.print_help()
