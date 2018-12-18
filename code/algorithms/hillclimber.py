@@ -4,7 +4,6 @@ import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 from algorithms.astar_spfa import AstarSpfa
-from classes.environment import Environment
 from classes.chip import Chip
 
 
@@ -216,15 +215,3 @@ class HillClimber:
 
         fig = go.Figure(data=data, layout=layout)
         py.plot(fig, filename=self.lineplot_filename)
-
-
-# if __name__ == "__main__":
-#     env = Environment(2)
-#     hillclimber = HillClimber(env,
-#                               save_chip=True, show_chip=True, show_lineplot=True,
-#                               chip_filename="hc_bestchip.json",
-#                               chip_plotname="hc_bestchip",
-#                               lineplot_filename="hc_result")
-#     hillclimber.hillclimbing()
-#     hillclimber.randomwalk()
-#     hillclimber.hillclimbing_solution()

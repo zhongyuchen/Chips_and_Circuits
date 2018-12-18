@@ -41,10 +41,13 @@ def argparser():
     parser.add_argument('--retry', default=3, type=int,
                         help='The allowed max retry in a step in hill climber')
     parser.add_argument('--savechip', default=False, type=bool,
+                        choices=[0, 1],
                         help='Save the best chip in json file after hill climbing')
     parser.add_argument('--showchip', default=False, type=bool,
+                        choices=[0, 1],
                         help='Show the best chip after hill climbing')
     parser.add_argument('--result', default=True, type=bool,
+                        choices=[0, 1],
                         help='Show the hill climbing process')
     parser.add_argument('--savechip_name', default="hillclimbing_bestchip.json", type=str,
                         help='The name of the chip json file')
@@ -106,11 +109,11 @@ def argparser():
 
     if args.algorithm == "astar":
         algos[args.algorithm](args.astar_complete)
-    if args.algorithm == "genetic":
+    elif args.algorithm == "genetic":
         algos[args.algorithm](args.genetic_poolSize, args.genetic_parentSize, args.genetic_generationSize)
-    if args.algorithm == "hillclimbing" or \
+    elif args.algorithm == "hillclimbing" or \
             args.algorithm == "randomwalk" or \
             args.algorithm == "hillclimbing_solution":
         algos[args.algorithm]()
-
-    parser.print_help()
+    else:
+        parser.print_help()
