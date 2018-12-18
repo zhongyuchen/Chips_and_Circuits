@@ -88,7 +88,6 @@ class AstarSpfa:
             print("The number of connected wires / total wires =", self.astar_spfa(), '/', len(self.chip.net))
             self.chip.plot("test")
 
-
         if not use_spfa:
             # Recover the grid_value to initial values.
             self.chip.manhattan_distance_weight()
