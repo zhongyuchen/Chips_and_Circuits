@@ -461,13 +461,13 @@ class Chip:
             wires.append(random.randint(0, length - 1))
         return wires
 
-    # def shuffle_random_wires(self, amount):
-    #     # randomly select a piece of the sequence, with the length of amount
-    #     # shuffle this piece
-    #
-    #     start = random.randint(0, len(self.net) - amount)
-    #     print(f"[{start}, {start + amount}]: {self.net[start: start + amount]} -> ", end="")
-    #     shuffle_list = self.net[start: start + amount]
-    #     random.shuffle(shuffle_list)
-    #     self.net[start: start + amount] = shuffle_list
-    #     print(f"{self.net[start: start + amount]}", end=" ")
+    def shuffle_random_wires(self, amount):
+        # randomly select a piece of the sequence, with the length of amount
+        # shuffle this piece
+
+        start = random.randint(0, len(self.net) - amount)
+        print(f"[{start}, {start + amount}]: {self.net[start: start + amount]} -> ", end="")
+        shuffle_list = self.net[start: start + amount]
+        random.shuffle(shuffle_list)
+        self.net[start: start + amount] = shuffle_list
+        print(f"{self.net[start: start + amount]}")

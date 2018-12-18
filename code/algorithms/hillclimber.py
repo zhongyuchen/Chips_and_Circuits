@@ -1,4 +1,3 @@
-from readjson import loadchip
 import sys
 sys.path.append('../')
 import random
@@ -7,28 +6,30 @@ import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
 from astar_spfa import AstarSpfa
+from classes.environment import Environment
+from classes.chip import Chip
 
 
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
 
 class HillClimber:
-    def __init__(self, environment, startchip_filename="astar-2-000-0523.json", steps=500,
+    def __init__(self, environment, steps=20, amount=3, retry=3,
                  save_chip=False, show_chip=False, show_lineplot=True,
                  chip_filename="hillclimbing_bestchip.json",
                  chip_plotname="hillclimbing_bestchip",
                  lineplot_filename="hillclimbing_result"):
-        self.chip = loadchip(startchip_filename)
+        self.astarspfa = AstarSpfa(environment)
+        self.chip = Chip(environment)
         self.steps = steps
         self.save_chip, self.chip_filename = save_chip, chip_filename
         self.show_chip, self.chip_plotname = show_chip, chip_plotname
         self.show_lineplot, self.lineplot_filename = show_lineplot, lineplot_filename
-        self.env = environment
-        self.amount = 6
-        self.retry = 30
-        self.astarspfa = AstarSpfa(self.env)
+        self.amount = amount
+        self.retry = retry
 
     def hillclimbing(self, random_walk=False):
+        self.astarspfa.wrapper(self.chip, valid=True)
         print("Starting to climb a hill...")
         print(f"Start with a chip with cost of {self.chip.cost()}...")
         costs = [self.chip.cost()]
@@ -68,6 +69,7 @@ class HillClimber:
                         print(f"gets better", end=", ")
                     break
 
+            # record the best chip (for random walk)
             if self.chip.cost() < chip_best.cost():
                 chip_best = self.chip
 
@@ -97,21 +99,25 @@ class HillClimber:
         # hill climbing for finding a solution
         print("Starting climbing for a solution...")
         success_num = 0
-        connected = self.find_solution(self.chip)
+
+        connected = self.astarspfa.wrapper(self.chip, valid=False)
+
         connected_list = [copy.deepcopy(connected)]
         print(f"Starting with a {connected}/{len(self.chip.net)}-connected chip...")
 
         # climb
         for i in range(self.steps):
+            if connected == len(self.chip.net):
+                break
             # retry
-            print(f"Step {i},", end=" ")
             for j in range(self.retry):
                 # new chip
+                print(f"Step {i}-{j},", end=" ")
                 chip_test = copy.deepcopy(self.chip)
                 chip_test.clean()
                 # shuffle
                 chip_test.shuffle_random_wires(self.amount)
-                connected_test = self.find_solution(chip_test)
+                connected_test = self.astarspfa.wrapper(chip_test)
 
                 if connected_test > connected:
                     connected = copy.deepcopy(connected_test)
@@ -119,22 +125,19 @@ class HillClimber:
                     success_num += 1
                     break
 
-            print(f"{connected}/{len(self.chip.net)}")
+            print(f"Step {i} result: {connected}/{len(self.chip.net)}")
             connected_list.append(copy.deepcopy(connected))
 
-            if connected == len(self.chip.net):
-                break
-
         print(f"All done! {len(connected_list) - 1} steps, "
-              f"{connected}/{len(self.chip.net)} connected, "
-              f"{success_num}/{len(connected_list) - 1} success.")
+              f"among which {success_num} steps get better, "
+              f"{connected}/{len(self.chip.net)} connected")
 
         # save the best!
         if self.save_chip:
             self.chip.save(self.chip_filename)
 
         if self.show_chip:
-            self.chip.show(self.chip_plotname)
+            self.chip.plot(self.chip_plotname)
 
         if self.show_lineplot:
             self.lineplot(connected_list)
@@ -160,12 +163,12 @@ class HillClimber:
 
 
 if __name__ == "__main__":
-    hillclimber = HillClimber(startchip_filename="astar-2-000-0523.json", steps=30,
+    env = Environment(2)
+    hillclimber = HillClimber(env,
                               save_chip=True, show_chip=True, show_lineplot=True,
                               chip_filename="hc_bestchip.json",
                               chip_plotname="hc_bestchip",
                               lineplot_filename="hc_result")
     # hillclimber.hillclimbing()
     # hillclimber.randomwalk()
-
-    hillclimber.
+    hillclimber.hillclimbing_solution()
