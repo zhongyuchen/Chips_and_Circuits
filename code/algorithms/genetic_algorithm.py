@@ -3,7 +3,6 @@ import json
 import sys
 
 sys.path.append('../')
-from classes.chip import Chip
 from algorithms.astar_spfa import AstarSpfa
 import os
 import shutil
