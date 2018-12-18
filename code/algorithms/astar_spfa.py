@@ -66,7 +66,7 @@ class AstarSpfa:
             self.chip.clean()
             random.shuffle(self.chip.net)
             answer = self.astar_spfa()
-            print("The number of connected wires / total wires =", answer, total_wires)
+            print("The number of connected wires / total wires =", answer, '/', total_wires)
 
         print("find a solution")
 
@@ -75,12 +75,19 @@ class AstarSpfa:
 
         return answer
 
-    def run(self, use_spfa=1):
+    def run(self, complete, use_spfa=1):
         if not use_spfa:
             # Change the situation to the more simple algorithm - Breadth-First-Search.
             self.chip.grid_value = self.chip.memset_list(1)
 
-        self.run_until_solution(1)
+        random.shuffle(self.chip.net)
+
+        if complete:
+            self.run_until_solution(1)
+        else:
+            print("The number of connected wires / total wires =", self.astar_spfa(), '/', len(self.chip.net))
+            self.chip.plot("test")
+
 
         if not use_spfa:
             # Recover the grid_value to initial values.

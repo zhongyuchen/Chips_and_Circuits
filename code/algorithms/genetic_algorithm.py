@@ -17,8 +17,8 @@ class GeneticAlgorithm:
     """
 
     def __init__(self, environment):
-        self.POOL_SIZE = 5000
-        self.PARENT_SIZE = 50  # This must be even number.
+        self.POOL_SIZE = 500
+        self.PARENT_SIZE = 50
         self.GENERATION_SIZE = 30
         self.env = environment
         self.GA_PATH = "../results/GApool"
@@ -35,8 +35,7 @@ class GeneticAlgorithm:
             number_connected = astarspfa.astar_spfa()
             astarspfa.chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
 
-            with open("pool_record.txt", "a") as f:
-                print(i, number_connected, file=f)
+            print("pool number / pool size = ", i, '/', self.POOL_SIZE)
 
     def load_pool(self, gene):
         """
@@ -123,13 +122,6 @@ class GeneticAlgorithm:
 
         dict_parent = 'GApool/generation' + str(parent_generation) + '/'
         dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
-        # chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
-        # chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
-
-        # cnt = self.produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
-
-        # Swap father_list and mother_list.
-        # cnt = self.produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
 
         father_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
         mother_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
@@ -161,6 +153,7 @@ class GeneticAlgorithm:
         random.shuffle(index_parent)  # Select proportionate randomly.
         for i in range(self.PARENT_SIZE):
             if not (i & 1):  # For each pair, work once.
+                print('pair of parent', int(i / 2), 'number of children', cnt - self.PARENT_SIZE)
                 cnt = self.cycle_crossover(parent_generation, index_parent[i], index_parent[i + 1], cnt,
                                            random.randint(2, 5))
 
@@ -184,13 +177,26 @@ class GeneticAlgorithm:
 
             self.work_each_generation(parent_generation, index_parent)
 
-            print("---", generation)
+            print("generation done / generation size", generation, "/", self.GENERATION_SIZE, end="\n\n\n")
+
+    def check_folder(self, dirt):
+        if not os.path.exists(dirt):
+            os.mkdir(dirt)
+            return 0
+        return 1
 
     def pool_exist(self):
         # Check whether there is a such folder.
 
-        dirt = self.GA_PATH + '/generation0'
-        if not os.path.exists(dirt):
+        folder_exist = 0
+
+        folder_exist = folder_exist + self.check_folder("../results")
+        folder_exist = folder_exist + self.check_folder(self.GA_PATH)
+        folder_exist = folder_exist + self.check_folder(self.GA_PATH + '/generation0')
+
+        print(folder_exist)
+
+        if folder_exist != 3:
             return 0
 
         # Check whether the pool contains enough elements.
@@ -200,14 +206,20 @@ class GeneticAlgorithm:
 
         return 1
 
-    def run(self):
+    def run(self, pool_size, parent_size, generation_size):
         """
             It is the main function of genetic algorithm to be used by others.
             It first check if there is a existing pool, which ensures the process work.
             Then, it call the function of genetic_algorithm_main.
         """
 
+        self.POOL_SIZE = pool_size
+        self.PARENT_SIZE = parent_size * 2  # Use the total number instead of pair number
+        self.GENERATION_SIZE = generation_size
+
         if not self.pool_exist():
             self.create_pool()
+        else:
+            print("The pool is exists.")
 
         self.genetic_algorithm_main()

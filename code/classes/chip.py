@@ -9,7 +9,7 @@ sys.path.append('../')
 
 plotly.tools.set_credentials_file(username='chipsandcircuits', api_key='9A2KpJpwzbsL04AhXSTY')
 
-RESULTS_PATH = "../../results/"
+RESULTS_PATH = "../results/"
 
 
 class Chip:
