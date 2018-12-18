@@ -1,13 +1,13 @@
 # Chips_and_Circuits
 
-##Author 
+## Author 
 - Tiancheng Guo (12455814)
 - Zhongyu Chen (12455822)
 
-##Structure
+## Structure
 - Put code, data and results in different locations.
 
-##Usage
+## Usage
 ```angular2html
 usage: main.py [-h] [--netlist {1,2,3,4,5,6}]
                [--algorithm {astar,genetic,hillclimbing,randomwalk,hillclimbing_solution}]
@@ -50,7 +50,7 @@ optional arguments:
                         The name of the plot of hill climbing process
 ```
 
-##Example
+## Example
 ```angular2html
 python main.py --netlist 2 --algorithm hillclimbing
                --steps 300 --amount 6 --retry 20
@@ -60,5 +60,5 @@ python main.py --netlist 2 --algorithm hillclimbing
                --result_name hillclimbing_result
 ```
 
-##Settings
+## Settings
 - The environment required is set in "requirements.txt"
