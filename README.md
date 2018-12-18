@@ -50,5 +50,15 @@ optional arguments:
                         The name of the plot of hill climbing process
 ```
 
+##Example
+```angular2html
+python main.py --netlist 2 --algorithm hillclimbing
+               --steps 300 --amount 6 --retry 20
+               --savechip 1 --showchip 1 --result 1
+               --savechip_name chip.json
+               --showchip_name chip
+               --result_name hillclimbing_result
+```
+
 ##Settings
 - The environment required is set in "requirements.txt"
