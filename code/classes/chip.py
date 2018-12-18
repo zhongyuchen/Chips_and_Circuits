@@ -80,7 +80,7 @@ class Chip:
                         self.grid_value[i][j][k] += mapping(manhattan_distance([i, j, k], gate))
 
     def plot(self, figname=""):
-        # visualization
+        # visualization of the chip
         data = []
         # gates
         i = 1
@@ -292,78 +292,6 @@ class Chip:
             left = left + 1
         return -1
 
-    # def addline(self, net_num):
-    #     """
-    #         Try to add a line between the pair of certain net.
-    #         Use the Breadth-First-Search try to find a path.
-    #     """
-    #
-    #     st = self.net[net_num][0]
-    #     en = self.net[net_num][1]
-    #
-    #     queue = []
-    #     # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
-    #     left = 0
-    #     right = 1
-    #     queue.append([0, self.gate[st][0], self.gate[st][1], -1])
-    #
-    #     visit = [[[0 for _ in range(self.size[2])] for _ in range(self.size[1])] for _ in range(self.size[0])]
-    #
-    #     for i in range(self.size[0]):
-    #         for j in range(self.size[1]):
-    #             for k in range(self.size[2]):
-    #                 visit[i][j][k] = 0
-    #
-    #     for i in range(len(self.gate)):
-    #         visit[0][self.gate[i][0]][self.gate[i][1]] = 1
-    #         self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = -1
-    #     visit[0][self.gate[en][0]][self.gate[en][1]] = 0
-    #
-    #     while left < right:
-    #         u = queue[left]
-    #         if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
-    #             current_cost = 0
-    #             tmp = u[3]
-    #             self.map_line[net_num].append([u[0], u[1], u[2]])
-    #             while tmp != -1:
-    #                 if self.grid[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] != -1:
-    #                     self.used_wired[queue[tmp][0]][queue[tmp][1]][queue[tmp][2]] = net_num
-    #                     self.map_line[net_num].append([queue[tmp][0], queue[tmp][1], queue[tmp][2]])
-    #                 current_cost = current_cost + 1
-    #                 tmp = queue[tmp][3]
-    #             self.map_line[net_num].append([0, self.gate[st][0], self.gate[st][1]])
-    #
-    #             return current_cost
-    #
-    #         # up level
-    #         if u[0] < 6:
-    #             if visit[u[0] + 1][u[1]][u[2]] == 0 and self.used_wired[u[0] + 1][u[1]][u[2]] == -1:
-    #                 queue.append([u[0] + 1, u[1], u[2], left])
-    #                 visit[u[0] + 1][u[1]][u[2]] = 1
-    #                 right = right + 1
-    #
-    #         # 4 directions in same level
-    #         for i in range(4):
-    #             tx = u[1] + four_direction[i][0]
-    #             ty = u[2] + four_direction[i][1]
-    #             if tx < 0 or tx >= self.size[1] or ty < 0 or ty >= self.size[2]:
-    #                 continue
-    #
-    #             if visit[u[0]][tx][ty] == 0 and self.used_wired[u[0]][tx][ty] == -1:
-    #                 queue.append([u[0], tx, ty, left])
-    #                 visit[u[0]][tx][ty] = 1
-    #                 right = right + 1
-    #
-    #         # down level
-    #         if u[0] > 0:
-    #             if visit[u[0] - 1][u[1]][u[2]] == 0 and self.used_wired[u[0] - 1][u[1]][u[2]] == -1:
-    #                 queue.append([u[0] - 1, u[1], u[2], left])
-    #                 visit[u[0] - 1][u[1]][u[2]] = 1
-    #                 right = right + 1
-    #
-    #         left = left + 1
-    #     return -1
-
     def delline(self, lab_number):
         """
             Delete a line of the certain pair, defined by 'lab_number'.
@@ -438,21 +366,6 @@ class Chip:
         with open(filename, 'w') as f:
             json.dump(dic, f, indent=4)
 
-    def load(self, filename):
-        # Load a chip from the file.
-
-        filename = RESULTS_PATH + filename
-        with open(filename, 'r') as f:
-            dic = json.load(f)
-        self.size = dic["size"]
-        self.gate = dic["gate"]
-        self.net = dic["net"]
-        self.grid = dic["grid"]
-        self.wire = dic["wire"]
-        self.used_wired = dic["used_wired"]
-        self.map_line = dic["map_line"]
-        self.grid_value = dic["grid_value"]
-
     def random_wires(self, amount):
         # randomly select a certain amount of wires
         length = len(self.net)
@@ -462,8 +375,13 @@ class Chip:
         return wires
 
     def shuffle_random_wires(self, amount):
-        # randomly select a piece of the sequence, with the length of amount
-        # shuffle this piece
+        """
+            randomly select a chunk (with a certain length)
+            of the sequence (the order of adding wires),
+            shuffle this chunk,
+            and put it back the same position,
+            to get a new order of adding wires.
+        """
 
         start = random.randint(0, len(self.net) - amount)
         print(f"[{start}, {start + amount}]: {self.net[start: start + amount]} -> ", end="")

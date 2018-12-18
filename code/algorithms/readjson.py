@@ -7,6 +7,10 @@ DATA_PATH = "../../data/"
 
 
 def readjson(filename, number=-1):
+    """
+        readjson: read in json file
+    """
+
     filename = DATA_PATH + filename
     with open(filename, "r") as file:
         dict = json.load(file)
