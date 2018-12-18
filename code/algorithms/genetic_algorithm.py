@@ -17,8 +17,8 @@ class GeneticAlgorithm:
     """
 
     def __init__(self, environment):
-        self.POOL_SIZE = 5000
-        self.PARENT_SIZE = 50  # This must be even number.
+        self.POOL_SIZE = 500
+        self.PARENT_SIZE = 50
         self.GENERATION_SIZE = 30
         self.env = environment
         self.GA_PATH = "../results/GApool"
@@ -206,12 +206,16 @@ class GeneticAlgorithm:
 
         return 1
 
-    def run(self):
+    def run(self, pool_size, parent_size, generation_size):
         """
             It is the main function of genetic algorithm to be used by others.
             It first check if there is a existing pool, which ensures the process work.
             Then, it call the function of genetic_algorithm_main.
         """
+
+        self.POOL_SIZE = pool_size
+        self.PARENT_SIZE = parent_size * 2  # Use the total number instead of pair number
+        self.GENERATION_SIZE = generation_size
 
         if not self.pool_exist():
             self.create_pool()

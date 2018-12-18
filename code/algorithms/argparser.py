@@ -6,6 +6,7 @@ sys.path.append('../')
 import argparse
 from classes.environment import Environment
 
+
 def argparser():
     parser = argparse.ArgumentParser(description='Chips and Circuits')
 
@@ -18,24 +19,42 @@ def argparser():
                         choices=["astar", "genetic", "hillclimbing"],
                         help='the algorithm that is used.')
 
+    parser.add_argument('--astar-complete', default=1, type=int,
+                        choices=[0, 1],
+                        help='Whether to find a complete solution')
+
+    parser.add_argument('--genetic-poolSize', default=500, type=int,
+                        help='The pool size for genetic algorithm')
+
+    parser.add_argument('--genetic-parentSize', default=25, type=int,
+                        help='The parent size(pair) for genetic algorithm')
+
+    parser.add_argument('--genetic-generationSize', default=30, type=int,
+                        help='The generation size for genetic algorithm')
+
     args = parser.parse_args()
 
+
+    if args.algorithm != 'astar' and args.astar_complete != True:
+        parser.error('--astar-complete can only be set when --algorithm=astar.')
+
+    if args.algorithm != "genetic" and args.genetic_poolSize != 500:
+        parser.error('--genetic-poolSize can only be set when --algorithm=genetic.')
+
+    if args.algorithm != 'genetic' and args.genetic_parentSize != 25:
+        parser.error('--genetic-parentSize can only be set when --algorithm=genetic.')
+
+    if args.algorithm != 'genetic' and args.genetic_generationSize != 30:
+        parser.error('--genetic-generationSize can only be set when --algorithm=genetic.')
+
     env = Environment(args.netlist)
-
-    # test = AstarSpfa(env)
-    # print(test.run())
-
-    # algos = {"hillclimber": algorithms.Hillclimber(env).run,
-    #         "annealing": algorithms.Annealing(main_timetable).run,
-    #         "greedy": algorithms.Hillclimber(main_timetable).worst_to_best,
-    #         "genetic": algorithms.Genetic(generations, size).run}
 
     algos = {"astar": AstarSpfa(env).run,
              "genetic": GeneticAlgorithm(env).run}
 
-    algos[args.algorithm]()
-
-    # test = AstarSpfa(env)
-    # print(test.run())
+    if args.algorithm == "astar":
+        algos[args.algorithm](args.astar_complete)
+    if args.algorithm == "genetic":
+        algos[args.algorithm](args.genetic_poolSize, args.genetic_parentSize, args.genetic_generationSize)
 
     parser.print_help()
