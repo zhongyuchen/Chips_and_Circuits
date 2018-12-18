@@ -1,11 +1,9 @@
-import sys
-sys.path.append('../')
 import random
 import copy
 import plotly
 import plotly.plotly as py
 import plotly.graph_objs as go
-from astar_spfa import AstarSpfa
+from algorithms.astar_spfa import AstarSpfa
 from classes.environment import Environment
 from classes.chip import Chip
 
@@ -220,13 +218,13 @@ class HillClimber:
         py.plot(fig, filename=self.lineplot_filename)
 
 
-if __name__ == "__main__":
-    env = Environment(2)
-    hillclimber = HillClimber(env,
-                              save_chip=True, show_chip=True, show_lineplot=True,
-                              chip_filename="hc_bestchip.json",
-                              chip_plotname="hc_bestchip",
-                              lineplot_filename="hc_result")
-    hillclimber.hillclimbing()
-    hillclimber.randomwalk()
-    hillclimber.hillclimbing_solution()
+# if __name__ == "__main__":
+#     env = Environment(2)
+#     hillclimber = HillClimber(env,
+#                               save_chip=True, show_chip=True, show_lineplot=True,
+#                               chip_filename="hc_bestchip.json",
+#                               chip_plotname="hc_bestchip",
+#                               lineplot_filename="hc_result")
+#     hillclimber.hillclimbing()
+#     hillclimber.randomwalk()
+#     hillclimber.hillclimbing_solution()

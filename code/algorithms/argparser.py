@@ -16,7 +16,7 @@ def argparser():
                         choices=[1, 2, 3, 4, 5, 6],
                         help='choose the netlist.')
 
-    parser.add_argument('--algorithm', default="astar",
+    parser.add_argument('--algorithm',
                         choices=["astar", "genetic", "hillclimbing",
                                  "randomwalk", "hillclimbing_solution"],
                         help='the algorithm that is used.')
@@ -108,7 +108,9 @@ def argparser():
         algos[args.algorithm](args.astar_complete)
     if args.algorithm == "genetic":
         algos[args.algorithm](args.genetic_poolSize, args.genetic_parentSize, args.genetic_generationSize)
-    else:
+    if args.algorithm == "hillclimbing" or \
+            args.algorithm == "randomwalk" or \
+            args.algorithm == "hillclimbing_solution":
         algos[args.algorithm]()
 
     parser.print_help()

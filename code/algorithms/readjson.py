@@ -3,7 +3,7 @@ import sys
 sys.path.append('../')
 
 
-DATA_PATH = "../../data/"
+DATA_PATH = "../data/"
 
 
 def readjson(filename, number=-1):
