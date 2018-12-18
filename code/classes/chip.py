@@ -80,9 +80,13 @@ class Chip:
                         self.grid_value[i][j][k] += mapping(manhattan_distance([i, j, k], gate))
 
     def plot(self, figname=""):
-        # visualization of the chip
+        """
+            Visualization of the chip.
+            Use poltly to generate 3D figure.
+        """
+
         data = []
-        # gates
+        # Gates.
         i = 1
         for g in self.gate:
             gate = go.Scatter3d(
@@ -97,7 +101,7 @@ class Chip:
             i += 1
             data.append(gate)
 
-        # wires
+        # Wires.
         wires = self.output_line()
         i = 1
         for w in wires:
@@ -112,11 +116,8 @@ class Chip:
             i += 1
             data.append(wire)
 
-        # layout
+        # Layout.
         layout = dict(
-            # width=800,
-            # height=700,
-            # autosize=False,
             title='chip (cost: ' + str(self.cost()) + ')',
             scene=dict(
                 xaxis=dict(
@@ -160,9 +161,9 @@ class Chip:
             ),
         )
 
-        # figure
+        # Figure form.
         fig = go.Figure(data=data, layout=layout)
-        # plot figure
+        # Plot figure.
         if figname == "":
             filename = "chip-3d"
         else:
@@ -245,7 +246,7 @@ class Chip:
         max_dis = 1000000
 
         queue = []
-        # tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
+        # Tuple with 4 elements(level, x, y, cost, last) presents level, x-axis, y-axis and last point
 
         visit = self.memset_list(0)
         dis = self.memset_list(max_dis)
@@ -260,21 +261,23 @@ class Chip:
             self.used_wired[0][self.gate[i][0]][self.gate[i][1]] = -1
 
         while left < right:
+            # Parameter u represents the header element of the queue.
             u = queue[left]
+            # Parameter v represents the tail element of the queue.
             v = [0 for _ in range(3)]
 
             visit[u[0]][u[1]][u[2]] = 0
 
-            # find a path
+            # If u is at the destination, find a path through the queue.
             if u[0] == 0 and u[1] == self.gate[en][0] and u[2] == self.gate[en][1]:
                 return self.find_path(u, queue, net_num, st)
 
-            # up level
+            # Search up lever in the chip.
             if u[0] < 6:
                 v[0], v[1], v[2] = u[0] + 1, u[1], u[2]
                 right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
 
-            # 4 directions in same level
+            # Search 4 directions in same level.
             for i in range(4):
                 tx = u[1] + self.env.four_direction[i][0]
                 ty = u[2] + self.env.four_direction[i][1]
@@ -284,7 +287,7 @@ class Chip:
                 v[0], v[1], v[2] = u[0], tx, ty
                 right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
 
-            # down level
+            # Search down level in the chip.
             if u[0] > 0:
                 v[0], v[1], v[2] = u[0] - 1, u[1], u[2]
                 right = right + self.check_node_spfa(u, v, queue, left, dis, visit, en)
