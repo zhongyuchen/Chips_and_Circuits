@@ -60,5 +60,8 @@ python main.py --netlist 2 --algorithm hillclimbing
                --result_name hillclimbing_result
 ```
 
-## Settings
-- The environment required is set in "requirements.txt"
+## Requirements
+```angular2html
+plotly==3.4.0
+python==3.6.6
+```
