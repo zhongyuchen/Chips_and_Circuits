@@ -8,6 +8,7 @@ import os
 import shutil
 import operator
 
+
 class GeneticAlgorithm:
     """
         This is the class of Genetic Algorithm.

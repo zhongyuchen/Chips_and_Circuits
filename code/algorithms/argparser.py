@@ -7,7 +7,6 @@ import argparse
 from classes.environment import Environment
 
 
-
 def argparser():
     parser = argparse.ArgumentParser(description='Chips and Circuits')
 
