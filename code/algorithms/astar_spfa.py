@@ -16,7 +16,7 @@ class AstarSpfa:
         self.env = environment
         self.chip = Chip(self.env)
 
-    def Calc_per_pairgate(self, flag_conflict, pair, cnt):
+    def calc_per_pairgate(self, flag_conflict, pair, cnt):
         if flag_conflict == 1:
             for i in range(4):
                 if flag_conflict == 0:
@@ -48,9 +48,9 @@ class AstarSpfa:
 
                 flag_conflict = 1
 
-                flag_conflict = self.Calc_per_pairgate(flag_conflict, pair_gate[0], cnt)
+                flag_conflict = self.calc_per_pairgate(flag_conflict, pair_gate[0], cnt)
 
-                flag_conflict = self.Calc_per_pairgate(flag_conflict, pair_gate[1], cnt)
+                flag_conflict = self.calc_per_pairgate(flag_conflict, pair_gate[1], cnt)
 
             if flag_conflict == 0:
                 cnt = cnt + 1
