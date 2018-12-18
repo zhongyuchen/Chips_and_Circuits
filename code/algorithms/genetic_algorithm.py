@@ -1,18 +1,13 @@
 import random
-from readjson import readjson, loadchip
+import json
 import sys
 
 sys.path.append('../')
 from classes.chip import Chip
-from astar_spfa import astar_spfa
+from algorithms.astar_spfa import AstarSpfa
 import os
 import shutil
 import operator
-
-# chipsize = readjson("gridsizes.json", 1)
-# chipgate = readjson("gatelists.json", 1)
-# chipnetlist = readjson("netlists.json", 3)
-
 
 class GeneticAlgorithm:
     """
@@ -26,7 +21,7 @@ class GeneticAlgorithm:
         self.PARENT_SIZE = 50  # This must be even number.
         self.GENERATION_SIZE = 30
         self.env = environment
-        self.GA_PATH = "../../results/GApool"
+        self.GA_PATH = "../results/GApool"
 
     def create_pool(self):
         """
@@ -35,9 +30,10 @@ class GeneticAlgorithm:
         """
 
         for i in range(self.POOL_SIZE):
-            current_chip = Chip(self.env)
-            number_connected = astar_spfa.astar_spfa(current_chip)
-            current_chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
+            astarspfa = AstarSpfa(self.env)
+            random.shuffle(astarspfa.chip.net)
+            number_connected = astarspfa.astar_spfa()
+            astarspfa.chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
 
             with open("pool_record.txt", "a") as f:
                 print(i, number_connected, file=f)
@@ -103,14 +99,20 @@ class GeneticAlgorithm:
                 child_list[j] = mother_list[j]
 
         if not (operator.eq(child_list, mother_list) or operator.eq(child_list, father_list)):
-            # Save child_list in child_chip.net.
-            child_chip = Chip(self.env)
-            child_chip.net = child_list
-            ans = astar_spfa(child_chip)
-            child_chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
+
+            astarspfa = AstarSpfa(self.env)
+            astarspfa.chip.net = child_list
+            ans = astarspfa.astar_spfa()
+            astarspfa.chip.save(dict_child + "astar-%04d-%02d.json" % (cnt, ans))
+
             cnt = cnt + 1
 
         return cnt
+
+    def fetch_net(self, filename):
+        with open(filename, "r") as f:
+            dic = json.load(f)
+            return dic["net"]
 
     def cycle_crossover(self, parent_generation, father, mother, cnt, round_number):
         """
@@ -121,13 +123,19 @@ class GeneticAlgorithm:
 
         dict_parent = 'GApool/generation' + str(parent_generation) + '/'
         dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
-        chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
-        chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
+        # chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
+        # chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
 
-        cnt = self.produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
+        # cnt = self.produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
 
         # Swap father_list and mother_list.
-        cnt = self.produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
+        # cnt = self.produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
+
+        father_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
+        mother_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
+
+        cnt = self.produce_child(dict_child, father_list, mother_list, round_number, cnt)
+        cnt = self.produce_child(dict_child, mother_list, father_list, round_number, cnt)
 
         return cnt
 
