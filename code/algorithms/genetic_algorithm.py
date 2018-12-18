@@ -35,8 +35,7 @@ class GeneticAlgorithm:
             number_connected = astarspfa.astar_spfa()
             astarspfa.chip.save("GApool/generation0/astar-%04d-%02d.json" % (i, number_connected))
 
-            with open("pool_record.txt", "a") as f:
-                print(i, number_connected, file=f)
+            print("pool_number / pool_size = ", i, '/', self.POOL_SIZE)
 
     def load_pool(self, gene):
         """
@@ -123,13 +122,6 @@ class GeneticAlgorithm:
 
         dict_parent = 'GApool/generation' + str(parent_generation) + '/'
         dict_child = 'GApool/generation' + str(parent_generation + 1) + '/'
-        # chip_father = loadchip(dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
-        # chip_mother = loadchip(dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
-
-        # cnt = self.produce_child(dict_child, chip_father.net, chip_mother.net, round_number, cnt)
-
-        # Swap father_list and mother_list.
-        # cnt = self.produce_child(dict_child, chip_mother.net, chip_father.net, round_number, cnt)
 
         father_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (father[0], father[1]))
         mother_list = self.fetch_net('../results/' + dict_parent + "astar-%04d-%02d.json" % (mother[0], mother[1]))
@@ -189,8 +181,24 @@ class GeneticAlgorithm:
     def pool_exist(self):
         # Check whether there is a such folder.
 
+        folder_exist = 1
+
+        dirt = "../results"
+        if not os.path.exists(dirt):
+            os.mkdir(dirt)
+            folder_exist = 0
+
+        dirt = self.GA_PATH
+        if not os.path.exists(dirt):
+            os.mkdir(dirt)
+            folder_exist = 0
+
         dirt = self.GA_PATH + '/generation0'
         if not os.path.exists(dirt):
+            os.mkdir(dirt)
+            folder_exist = 0
+
+        if not folder_exist:
             return 0
 
         # Check whether the pool contains enough elements.

@@ -66,7 +66,7 @@ class AstarSpfa:
             self.chip.clean()
             random.shuffle(self.chip.net)
             answer = self.astar_spfa()
-            print("The number of connected wires / total wires =", answer, total_wires)
+            print("The number of connected wires / total wires =", answer, '/', total_wires)
 
         print("find a solution")
 
