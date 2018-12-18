@@ -3,7 +3,6 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import json
 import random
-from classes.environment import Environment
 import sys
 sys.path.append('../')
 
