@@ -61,3 +61,7 @@ python main.py --netlist 2 --algorithm hillclimbing --steps 300 --amount 6 --ret
 plotly==3.4.0
 python==3.6.6
 ```
+
+## Websites
+
+* __[Heuristieken](http://heuristieken.nl/wiki/index.php?title=Heuristieken)__
