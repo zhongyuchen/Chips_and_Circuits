@@ -2,7 +2,7 @@
 
 ## Author 
 - Tiancheng Guo (12455814)
-- Zhongyu Chen (12455822)
+- Zhongyu Chen (12455822) `Grage: 8.0`
 
 ## Structure
 - Put code, data and results in different locations.
