@@ -7,6 +7,12 @@
 ## Structure
 - Put code, data and results in different locations.
 
+## Prerequisites
+This code base is written entirely in __[Python 3.6.6](https://www.python.org/downloads/)__. Requirements.txt contains all the necessary packages to run the code successfully. These are easy to install via `pip`, the following instruction:
+```
+pip install -r requirements.txt
+```
+
 ## Usage
 ```angular2html
 usage: main.py [-h] [--netlist {1,2,3,4,5,6}]
@@ -54,12 +60,6 @@ optional arguments:
 ```angular2html
 cd code/
 python main.py --netlist 2 --algorithm hillclimbing --steps 300 --amount 6 --retry 20 --savechip 1 --showchip 1 --result 1 --savechip_name chip.json --showchip_name chip --result_name hillclimbing_result
-```
-
-## Requirements
-```angular2html
-plotly==3.4.0
-python==3.6.6
 ```
 
 ## Websites
