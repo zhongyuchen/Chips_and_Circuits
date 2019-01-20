@@ -1,6 +1,6 @@
 # Chips_and_Circuits
 
-## Author 
+## Authors
 - Tiancheng Guo (12455814)
 - Zhongyu Chen (12455822) `Grade: 8.0`
 
