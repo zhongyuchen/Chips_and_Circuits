@@ -1,5 +1,7 @@
 # Chips_and_Circuits
 
+Problem description can be found __[here](http://heuristieken.nl/wiki/index.php?title=Chips_%26_Circuits)__.
+
 ## Authors
 - Tiancheng Guo (12455814)
 - Zhongyu Chen (12455822) `Grade: 8.0`
